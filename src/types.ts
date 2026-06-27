@@ -1,18 +1,20 @@
 // ─── Problem List ────────────────────────────────────────────────────────────
 
-export interface RawQuestion {
+type Difficulty = "Easy" | "Medium" | "Hard";
+
+export interface RawQuestionItem {
   questionId: string;
   frontendQuestionId: string;
   title: string;
   titleSlug: string;
-  difficulty: "Easy" | "Medium" | "Hard";
+  difficulty: Difficulty;
 }
 
-export interface ProblemsetResponse {
+export interface ProblemsListResponse {
   data: {
     problemsetQuestionList: {
       total: number;
-      questions: RawQuestion[];
+      questions: RawQuestionItem[];
     };
   };
 }
@@ -23,7 +25,7 @@ export interface Problem {
   frontendId: number;
   title: string;
   titleSlug: string;
-  difficulty: "Easy" | "Medium" | "Hard";
+  difficulty: Difficulty;
 }
 
 // ─── Problem Detail ──────────────────────────────────────────────────────────
@@ -34,18 +36,18 @@ export interface CodeSnippet {
   code: string;
 }
 
-export interface RawProblemDetail {
+export interface RawQuestionDetail {
   questionId: string;
   questionFrontendId: string;
   questionTitle: string;
   content: string; // raw HTML
-  difficulty: "Easy" | "Medium" | "Hard";
+  difficulty: Difficulty;
   codeSnippets: CodeSnippet[];
 }
 
 export interface ProblemDetailResponse {
   data: {
-    question: RawProblemDetail;
+    question: RawQuestionDetail;
   };
 }
 
@@ -55,7 +57,7 @@ export interface ProblemDetail {
   frontendId: number;
   title: string;
   contentHtml: string;
-  difficulty: "Easy" | "Medium" | "Hard";
+  difficulty: Difficulty;
   codeSnippets: CodeSnippet[];
 }
 

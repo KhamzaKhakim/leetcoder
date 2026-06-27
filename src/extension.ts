@@ -3,38 +3,46 @@ import { fetchProblemDetail, fetchProblemList } from "./fetcher";
 import { Problem } from "./types";
 
 export function activate(context: vscode.ExtensionContext) {
-  const disposable = vscode.commands.registerCommand(
-    "leetcoder.fetchTwoSum",
-    async () => {
-      const response = await fetchProblemDetail("two-sum");
-      vscode.window.showInformationMessage(response.id + ". " + response.title);
-    },
-  );
-
   const openProblemCommand = vscode.commands.registerCommand(
     "leetcoder.openProblem",
     async () => {
+      const sleep = (ms: number) =>
+        new Promise((resolve) => setTimeout(resolve, ms));
+
+      const quickPick = vscode.window.createQuickPick<
+        vscode.QuickPickItem & { problem: Problem }
+      >();
+
+      quickPick.title =
+        "Loading problems... (fetching from LeetCode for the first time)";
+      quickPick.placeholder = "Hang tight, this won't take long :)";
+      quickPick.busy = true;
+      quickPick.show();
+
+      await sleep(5000);
       const response = await fetchProblemList();
 
-      const items: (vscode.QuickPickItem & { problem: Problem })[] =
-        response.problems.map((p) => ({
-          label: `${p.id}. ${p.title}`,
-          description: p.difficulty as string,
-          problem: p,
-        }));
+      quickPick.items = response.problems.map((p) => ({
+        label: `${p.id}. ${p.title}`,
+        description: p.difficulty as string,
+        problem: p,
+      }));
+      quickPick.title = undefined;
+      quickPick.placeholder = "Search for a LeetCode problem...";
+      quickPick.busy = false;
 
-      const selected = await vscode.window.showQuickPick(items, {
-        placeHolder: "Search for a LeetCode problem...",
-        matchOnDescription: true,
-        matchOnDetail: true,
-      });
+      quickPick.onDidAccept(async () => {
+        const selected = quickPick.selectedItems[0];
+        quickPick.dispose();
 
-      if (selected) {
+        if (!selected) {
+          return;
+        }
+
         const { titleSlug } = selected.problem;
+        const detail = await fetchProblemDetail(titleSlug);
 
-        const response = await fetchProblemDetail(titleSlug);
-
-        const tsSnippet = response.codeSnippets?.find(
+        const tsSnippet = detail.codeSnippets?.find(
           (c) => c.langSlug === "typescript",
         )?.code;
 
@@ -50,7 +58,6 @@ export function activate(context: vscode.ExtensionContext) {
         if (editor && editor.document.languageId === "typescript") {
           editor.edit((editBuilder) => {
             const isEmpty = editor.document.getText().trim() === "";
-
             if (isEmpty) {
               editBuilder.insert(new vscode.Position(0, 0), tsSnippet);
             } else {
@@ -72,15 +79,11 @@ export function activate(context: vscode.ExtensionContext) {
 
           const encoder = new TextEncoder();
           await vscode.workspace.fs.writeFile(uri, encoder.encode(tsSnippet));
-
-          const doc = await vscode.workspace.openTextDocument(uri);
-          await vscode.window.showTextDocument(doc);
+          await vscode.window.showTextDocument(uri);
         }
-      }
+      });
     },
   );
-
-  context.subscriptions.push(disposable);
   context.subscriptions.push(openProblemCommand);
 }
 
