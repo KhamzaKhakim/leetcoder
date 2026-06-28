@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import { fetchProblemDetail, fetchProblemList } from "./fetcher";
 import { Problem } from "./types";
+import { formatCode } from "./formatCode";
 
 export function activate(context: vscode.ExtensionContext) {
   const openProblemCommand = vscode.commands.registerCommand(
@@ -19,7 +20,6 @@ export function activate(context: vscode.ExtensionContext) {
       quickPick.busy = true;
       quickPick.show();
 
-      await sleep(5000);
       const response = await fetchProblemList();
 
       quickPick.items = response.problems.map((p) => ({
@@ -53,6 +53,8 @@ export function activate(context: vscode.ExtensionContext) {
           return;
         }
 
+        const formattedCode = formatCode(tsSnippet);
+
         const editor = vscode.window.activeTextEditor;
 
         if (editor && editor.document.languageId === "typescript") {
@@ -78,7 +80,10 @@ export function activate(context: vscode.ExtensionContext) {
           );
 
           const encoder = new TextEncoder();
-          await vscode.workspace.fs.writeFile(uri, encoder.encode(tsSnippet));
+          await vscode.workspace.fs.writeFile(
+            uri,
+            encoder.encode(formattedCode),
+          );
           await vscode.window.showTextDocument(uri);
         }
       });

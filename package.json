@@ -14,10 +14,6 @@
   "contributes": {
     "commands": [
       {
-        "command": "leetcoder.fetchTwoSum",
-        "title": "LeetCoder: Two Sum"
-      },
-      {
         "command": "leetcoder.openProblem",
         "title": "LeetCoder: Open Problem"
       }
