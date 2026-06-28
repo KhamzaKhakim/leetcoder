@@ -21,6 +21,7 @@ export function activate(context: vscode.ExtensionContext) {
       quickPick.show();
 
       const response = await fetchProblemList();
+      //TODO: incrementally fetch problems and cache them in memory
 
       quickPick.items = response.problems.map((p) => ({
         label: `${p.id}. ${p.title}`,
@@ -86,6 +87,8 @@ export function activate(context: vscode.ExtensionContext) {
           );
           await vscode.window.showTextDocument(uri);
         }
+
+        //TODO: Add webview with the task description
       });
     },
   );

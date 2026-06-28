@@ -10,7 +10,7 @@ export interface RawQuestionItem {
   difficulty: Difficulty;
 }
 
-export interface ProblemsListResponse {
+export interface ProblemListResponse {
   data: {
     problemsetQuestionList: {
       total: number;

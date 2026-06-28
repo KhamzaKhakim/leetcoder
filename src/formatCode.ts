@@ -8,6 +8,8 @@ export function formatCode(snippet: string) {
     formattedCode = snippet;
   }
 
+  //TODO: Add testing code
+
   return formattedCode;
 }
 

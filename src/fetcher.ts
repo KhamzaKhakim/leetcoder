@@ -1,7 +1,7 @@
 import {
   Problem,
   ProblemDetail,
-  ProblemsListResponse,
+  ProblemListResponse,
   ProblemDetailResponse,
   RawQuestionItem,
   RawQuestionDetail,
@@ -64,7 +64,7 @@ export async function fetchProblemList(
 }> {
   const { limit = 1000, skip = 0, categorySlug = "" } = options;
 
-  const json = await gql<ProblemsListResponse>(PROBLEMSET_QUERY, {
+  const json = await gql<ProblemListResponse>(PROBLEMSET_QUERY, {
     categorySlug,
     limit,
     skip,
