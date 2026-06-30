@@ -1,37 +1,58 @@
 import * as vscode from "vscode";
-import { fetchProblemDetail, fetchProblemList } from "./fetcher";
 import { Problem } from "./types";
 import { formatCode } from "./formatCode";
+import { getProblemList } from "./storage";
+import { fetchProblemDetail } from "./fetcher";
+import { FILE_NAME } from "./constants";
+import { existsSync } from "fs";
+
+let STATE = { isFetching: false };
 
 export function activate(context: vscode.ExtensionContext) {
   const openProblemCommand = vscode.commands.registerCommand(
     "leetcoder.openProblem",
     async () => {
-      const sleep = (ms: number) =>
-        new Promise((resolve) => setTimeout(resolve, ms));
-
+      if (STATE.isFetching) {
+        vscode.window.showWarningMessage(
+          "Fetching all LeetCode problems. Please wait several seconds",
+        );
+        return;
+      }
       const quickPick = vscode.window.createQuickPick<
         vscode.QuickPickItem & { problem: Problem }
       >();
 
-      quickPick.title =
-        "Loading problems... (fetching from LeetCode for the first time)";
-      quickPick.placeholder = "Hang tight, this won't take long :)";
       quickPick.busy = true;
       quickPick.show();
 
-      const response = await fetchProblemList();
-      //TODO: incrementally fetch problems and cache them in memory
+      const isCached = existsSync(
+        vscode.Uri.joinPath(context.globalStorageUri, FILE_NAME).path,
+      );
 
-      quickPick.items = response.problems.map((p) => ({
-        label: `${p.id}. ${p.title}`,
-        description: p.difficulty as string,
-        problem: p,
-      }));
+      if (!isCached) {
+        quickPick.title =
+          "Loading problems... (fetching from LeetCode for the first time)";
+        quickPick.placeholder = "Hang tight, this won't take long :)";
+      }
+
+      const toQuickPickItem = (problem: Problem) => ({
+        label: `${problem.frontendId}. ${problem.title}`,
+        description: problem.difficulty,
+        problem,
+      });
+
+      const onBatch = (problems: Problem[]) => {
+        quickPick.items = problems.map(toQuickPickItem);
+      };
+
+      const response = await getProblemList(context, onBatch, STATE);
+
+      quickPick.items = response.map(toQuickPickItem);
+      quickPick.busy = false;
       quickPick.title = undefined;
       quickPick.placeholder = "Search for a LeetCode problem...";
-      quickPick.busy = false;
 
+      //TODO: can't select while pushing
       quickPick.onDidAccept(async () => {
         const selected = quickPick.selectedItems[0];
         quickPick.dispose();

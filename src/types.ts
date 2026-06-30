@@ -68,3 +68,9 @@ export interface FetchProblemsOptions {
   skip?: number;
   categorySlug?: string;
 }
+
+export interface ProblemCache {
+  problems: Problem[];
+  total: number;
+  fetchedAt: number;
+}

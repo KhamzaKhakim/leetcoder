@@ -62,7 +62,7 @@ export async function fetchProblemList(
   total: number;
   problems: Problem[];
 }> {
-  const { limit = 1000, skip = 0, categorySlug = "" } = options;
+  const { limit = 100, skip = 0, categorySlug = "" } = options;
 
   const json = await gql<ProblemListResponse>(PROBLEMSET_QUERY, {
     categorySlug,
