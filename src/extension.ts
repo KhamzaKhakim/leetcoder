@@ -23,6 +23,9 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.QuickPickItem & { problem: Problem }
       >();
 
+      quickPick.title =
+        "Loading problems... (fetching from LeetCode for the first time)";
+      quickPick.placeholder = "Hang tight, this won't take long :)";
       quickPick.busy = true;
       quickPick.show();
 
@@ -125,6 +128,18 @@ export function activate(context: vscode.ExtensionContext) {
         }
 
         //TODO: Add webview with the task description
+        const panel = vscode.window.createWebviewPanel(
+          "leetcoder",
+          "Task",
+          {
+            viewColumn: 2,
+            preserveFocus: false,
+          },
+          {
+            retainContextWhenHidden: true, // Keeps the site loaded even if the user switches tabs
+          },
+        );
+        panel.webview.html = detail.contentHtml;
       });
     },
   );
