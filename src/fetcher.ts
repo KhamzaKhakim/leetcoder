@@ -12,10 +12,7 @@ const LEETCODE_GRAPHQL_URL = "https://leetcode.com/graphql/";
 
 // ─── GraphQL Client ──────────────────────────────────────────────────────────
 
-async function gql<T>(
-  query: string,
-  variables: Record<string, unknown>,
-): Promise<T> {
+async function gql<T>(query: string, variables: Record<string, unknown>): Promise<T> {
   const response = await fetch(LEETCODE_GRAPHQL_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -23,9 +20,7 @@ async function gql<T>(
   });
 
   if (!response.ok) {
-    throw new Error(
-      `LeetCode API error: ${response.status} ${response.statusText}`,
-    );
+    throw new Error(`LeetCode API error: ${response.status} ${response.statusText}`);
   }
 
   return response.json() as Promise<T>;
@@ -56,9 +51,7 @@ const PROBLEMSET_QUERY = /* graphql */ `
   }
 `;
 
-export async function fetchProblemList(
-  options: FetchProblemsOptions = {},
-): Promise<{
+export async function fetchProblemList(options: FetchProblemsOptions = {}): Promise<{
   total: number;
   problems: Problem[];
 }> {
@@ -96,9 +89,7 @@ const PROBLEM_DETAIL_QUERY = /* graphql */ `
   }
 `;
 
-export async function fetchProblemDetail(
-  titleSlug: string,
-): Promise<ProblemDetail> {
+export async function fetchProblemDetail(titleSlug: string): Promise<ProblemDetail> {
   const json = await gql<ProblemDetailResponse>(PROBLEM_DETAIL_QUERY, {
     titleSlug,
   });
