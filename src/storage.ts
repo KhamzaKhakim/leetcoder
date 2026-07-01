@@ -47,10 +47,7 @@ export async function getProblemList(
     total: allProblems.length,
     fetchedAt: Date.now(),
   };
-  await vscode.workspace.fs.writeFile(
-    cacheFile,
-    new TextEncoder().encode(JSON.stringify(payload)),
-  );
+  await vscode.workspace.fs.writeFile(cacheFile, new TextEncoder().encode(JSON.stringify(payload)));
 
   state.isFetching = false;
 

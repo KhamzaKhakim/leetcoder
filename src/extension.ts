@@ -10,139 +10,120 @@ import { checkFileExists } from "./utils";
 let STATE = { isFetching: false };
 
 export function activate(context: vscode.ExtensionContext) {
-  const openProblemCommand = vscode.commands.registerCommand(
-    "leetcoder.openProblem",
-    async () => {
-      if (STATE.isFetching) {
-        vscode.window.showWarningMessage(
-          "Fetching all LeetCode problems. Please wait several seconds",
-        );
-        return;
-      }
-      const quickPick = vscode.window.createQuickPick<
-        vscode.QuickPickItem & { problem: Problem }
-      >();
-
-      quickPick.title =
-        "Loading problems... (fetching from LeetCode for the first time)";
-      quickPick.placeholder = "Hang tight, this won't take long :)";
-      quickPick.busy = true;
-      quickPick.show();
-
-      const isCached = existsSync(
-        vscode.Uri.joinPath(context.globalStorageUri, FILE_NAME).path,
+  const openProblemCommand = vscode.commands.registerCommand("leetcoder.openProblem", async () => {
+    if (STATE.isFetching) {
+      vscode.window.showWarningMessage(
+        "Fetching all LeetCode problems. Please wait several seconds",
       );
+      return;
+    }
+    const quickPick = vscode.window.createQuickPick<vscode.QuickPickItem & { problem: Problem }>();
 
-      if (!vscode.workspace.workspaceFolders?.length) {
-        vscode.window.showErrorMessage("Open a workspace folder first.");
+    quickPick.title = "Loading problems... (fetching from LeetCode for the first time)";
+    quickPick.placeholder = "Hang tight, this won't take long :)";
+    quickPick.busy = true;
+    quickPick.show();
+
+    const isCached = existsSync(vscode.Uri.joinPath(context.globalStorageUri, FILE_NAME).path);
+
+    if (!vscode.workspace.workspaceFolders?.length) {
+      vscode.window.showErrorMessage("Open a workspace folder first.");
+      return;
+    }
+
+    if (!isCached) {
+      quickPick.title = "Loading problems... (fetching from LeetCode for the first time)";
+      quickPick.placeholder = "Hang tight, this won't take long :)";
+    }
+
+    const toQuickPickItem = (problem: Problem) => ({
+      label: `${problem.frontendId}. ${problem.title}`,
+      description: problem.difficulty,
+      problem,
+    });
+
+    const onBatch = (problems: Problem[]) => {
+      quickPick.items = problems.map(toQuickPickItem);
+    };
+
+    const response = await getProblemList(context, onBatch, STATE);
+
+    quickPick.items = response.map(toQuickPickItem);
+    quickPick.busy = false;
+    quickPick.title = undefined;
+    quickPick.placeholder = "Search for a LeetCode problem...";
+
+    //TODO: can't select while pushing
+    quickPick.onDidAccept(async () => {
+      const selected = quickPick.selectedItems[0];
+      quickPick.dispose();
+
+      if (!selected) {
         return;
       }
 
-      if (!isCached) {
-        quickPick.title =
-          "Loading problems... (fetching from LeetCode for the first time)";
-        quickPick.placeholder = "Hang tight, this won't take long :)";
+      const { titleSlug } = selected.problem;
+      const detail = await fetchProblemDetail(titleSlug);
+
+      const uri = vscode.Uri.joinPath(vscode.workspace.workspaceFolders![0].uri, `${titleSlug}.ts`);
+
+      const tsSnippet = detail.codeSnippets?.find((c) => c.langSlug === "typescript")?.code;
+
+      if (!tsSnippet) {
+        vscode.window.showWarningMessage("No TypeScript snippet found for this problem.");
+        return;
       }
 
-      const toQuickPickItem = (problem: Problem) => ({
-        label: `${problem.frontendId}. ${problem.title}`,
-        description: problem.difficulty,
-        problem,
-      });
+      const formattedCode = formatCode(tsSnippet);
 
-      const onBatch = (problems: Problem[]) => {
-        quickPick.items = problems.map(toQuickPickItem);
-      };
+      if (await checkFileExists(`${titleSlug}.ts`)) {
+        await vscode.window.showTextDocument(uri);
+        const editor = vscode.window.activeTextEditor!;
+        const isEmpty = editor.document.getText().trim() === "";
 
-      const response = await getProblemList(context, onBatch, STATE);
-
-      quickPick.items = response.map(toQuickPickItem);
-      quickPick.busy = false;
-      quickPick.title = undefined;
-      quickPick.placeholder = "Search for a LeetCode problem...";
-
-      //TODO: can't select while pushing
-      quickPick.onDidAccept(async () => {
-        const selected = quickPick.selectedItems[0];
-        quickPick.dispose();
-
-        if (!selected) {
-          return;
-        }
-
-        const { titleSlug } = selected.problem;
-        const detail = await fetchProblemDetail(titleSlug);
-
-        const uri = vscode.Uri.joinPath(
-          vscode.workspace.workspaceFolders![0].uri,
-          `${titleSlug}.ts`,
-        );
-
-        const tsSnippet = detail.codeSnippets?.find(
-          (c) => c.langSlug === "typescript",
-        )?.code;
-
-        if (!tsSnippet) {
-          vscode.window.showWarningMessage(
-            "No TypeScript snippet found for this problem.",
+        if (!isEmpty) {
+          const answer = await vscode.window.showWarningMessage(
+            `${titleSlug}.ts already has code. Reset it?`,
+            "Reset",
+            "Cancel",
           );
-          return;
-        }
-
-        const formattedCode = formatCode(tsSnippet);
-
-        if (await checkFileExists(`${titleSlug}.ts`)) {
-          await vscode.window.showTextDocument(uri);
-          const editor = vscode.window.activeTextEditor!;
-          const isEmpty = editor.document.getText().trim() === "";
-
-          if (!isEmpty) {
-            const answer = await vscode.window.showWarningMessage(
-              `${titleSlug}.ts already has code. Reset it?`,
-              "Reset",
-              "Cancel",
-            );
-            if (answer === "Cancel") {
-              return;
-            }
+          if (answer === "Cancel") {
+            return;
           }
-
-          editor.edit((editBuilder) => {
-            if (isEmpty) {
-              editBuilder.insert(new vscode.Position(0, 0), tsSnippet);
-            } else {
-              const fullRange = new vscode.Range(
-                new vscode.Position(0, 0),
-                editor.document.lineAt(editor.document.lineCount - 1).range.end,
-              );
-              editBuilder.replace(fullRange, formattedCode);
-            }
-          });
-        } else {
-          const encoder = new TextEncoder();
-          await vscode.workspace.fs.writeFile(
-            uri,
-            encoder.encode(formattedCode),
-          );
-          await vscode.window.showTextDocument(uri);
         }
 
-        //TODO: Add webview with the task description
-        const panel = vscode.window.createWebviewPanel(
-          "leetcoder",
-          "Task",
-          {
-            viewColumn: 2,
-            preserveFocus: false,
-          },
-          {
-            retainContextWhenHidden: true, // Keeps the site loaded even if the user switches tabs
-          },
-        );
-        panel.webview.html = detail.contentHtml;
-      });
-    },
-  );
+        editor.edit((editBuilder) => {
+          if (isEmpty) {
+            editBuilder.insert(new vscode.Position(0, 0), tsSnippet);
+          } else {
+            const fullRange = new vscode.Range(
+              new vscode.Position(0, 0),
+              editor.document.lineAt(editor.document.lineCount - 1).range.end,
+            );
+            editBuilder.replace(fullRange, formattedCode);
+          }
+        });
+      } else {
+        const encoder = new TextEncoder();
+        await vscode.workspace.fs.writeFile(uri, encoder.encode(formattedCode));
+        await vscode.window.showTextDocument(uri);
+      }
+
+      //TODO: Add webview with the task description
+      const panel = vscode.window.createWebviewPanel(
+        "leetcoder",
+        "Task",
+        {
+          viewColumn: 2,
+          preserveFocus: false,
+        },
+        {
+          retainContextWhenHidden: true, // Keeps the site loaded even if the user switches tabs
+        },
+      );
+      panel.webview.html = detail.contentHtml;
+    });
+  });
   context.subscriptions.push(openProblemCommand);
 }
 

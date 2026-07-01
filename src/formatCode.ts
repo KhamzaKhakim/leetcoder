@@ -30,9 +30,7 @@ function extractDefinitions(snippet: string): string {
         .split("\n")
         .slice(1, -1) // remove /** and */
         .map((line, idx) =>
-          idx === 0
-            ? "// " + line.replace(/^\s*\* ?/, "")
-            : line.replace(/^\s*\* ?/, ""),
+          idx === 0 ? "// " + line.replace(/^\s*\* ?/, "") : line.replace(/^\s*\* ?/, ""),
         ) // remove leading " * "
         .join("\n")
         .trim(),
