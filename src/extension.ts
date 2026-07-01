@@ -5,6 +5,7 @@ import { getProblemList } from "./storage";
 import { fetchProblemDetail } from "./fetcher";
 import { FILE_NAME } from "./constants";
 import { existsSync } from "fs";
+import { checkFileExists } from "./utils";
 
 let STATE = { isFetching: false };
 
@@ -28,6 +29,11 @@ export function activate(context: vscode.ExtensionContext) {
       const isCached = existsSync(
         vscode.Uri.joinPath(context.globalStorageUri, FILE_NAME).path,
       );
+
+      if (!vscode.workspace.workspaceFolders?.length) {
+        vscode.window.showErrorMessage("Open a workspace folder first.");
+        return;
+      }
 
       if (!isCached) {
         quickPick.title =
@@ -64,6 +70,11 @@ export function activate(context: vscode.ExtensionContext) {
         const { titleSlug } = selected.problem;
         const detail = await fetchProblemDetail(titleSlug);
 
+        const uri = vscode.Uri.joinPath(
+          vscode.workspace.workspaceFolders![0].uri,
+          `${titleSlug}.ts`,
+        );
+
         const tsSnippet = detail.codeSnippets?.find(
           (c) => c.langSlug === "typescript",
         )?.code;
@@ -77,30 +88,34 @@ export function activate(context: vscode.ExtensionContext) {
 
         const formattedCode = formatCode(tsSnippet);
 
-        const editor = vscode.window.activeTextEditor;
+        if (await checkFileExists(`${titleSlug}.ts`)) {
+          await vscode.window.showTextDocument(uri);
+          const editor = vscode.window.activeTextEditor!;
+          const isEmpty = editor.document.getText().trim() === "";
 
-        if (editor && editor.document.languageId === "typescript") {
+          if (!isEmpty) {
+            const answer = await vscode.window.showWarningMessage(
+              `${titleSlug}.ts already has code. Reset it?`,
+              "Reset",
+              "Cancel",
+            );
+            if (answer === "Cancel") {
+              return;
+            }
+          }
+
           editor.edit((editBuilder) => {
-            const isEmpty = editor.document.getText().trim() === "";
             if (isEmpty) {
               editBuilder.insert(new vscode.Position(0, 0), tsSnippet);
             } else {
-              const end = editor.document.lineAt(editor.document.lineCount - 1)
-                .range.end;
-              editBuilder.insert(end, "\n\n" + tsSnippet);
+              const fullRange = new vscode.Range(
+                new vscode.Position(0, 0),
+                editor.document.lineAt(editor.document.lineCount - 1).range.end,
+              );
+              editBuilder.replace(fullRange, formattedCode);
             }
           });
         } else {
-          if (!vscode.workspace.workspaceFolders?.length) {
-            vscode.window.showErrorMessage("Open a workspace folder first.");
-            return;
-          }
-
-          const uri = vscode.Uri.joinPath(
-            vscode.workspace.workspaceFolders[0].uri,
-            `${titleSlug}.ts`,
-          );
-
           const encoder = new TextEncoder();
           await vscode.workspace.fs.writeFile(
             uri,
