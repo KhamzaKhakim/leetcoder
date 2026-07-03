@@ -96,7 +96,7 @@ export function activate(context: vscode.ExtensionContext) {
 
         editor.edit((editBuilder) => {
           if (isEmpty) {
-            editBuilder.insert(new vscode.Position(0, 0), tsSnippet);
+            editBuilder.insert(new vscode.Position(0, 0), formattedCode);
           } else {
             const fullRange = new vscode.Range(
               new vscode.Position(0, 0),

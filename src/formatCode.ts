@@ -8,34 +8,35 @@ export function formatCode(snippet: string) {
     formattedCode = snippet;
   }
 
-  //TODO: Add testing code
-
   return formattedCode;
 }
+
+const DEFINITION_BLOCK_RE = /\/\*\*\s*\n\s*\*\s*Definition for[\s\S]*?\*\/\n?/g;
 
 function hasDefinition(snippet: string): boolean {
   return /\/\*\*\s*\n\s*\* Definition for/.test(snippet);
 }
 
 function stripDefinitions(snippet: string): string {
-  return snippet.replace(/\/\*\*\s*\n(?:\s*\*[^\n]*\n)*\s*\*\/\n?/g, "").trim();
+  return snippet.replace(DEFINITION_BLOCK_RE, "").trim();
 }
 
 function extractDefinitions(snippet: string): string {
-  const matches = snippet.matchAll(/\/\*\*\s*\n(?:\s*\*[^\n]*\n)*\s*\*\//g);
+  const matches = snippet.matchAll(DEFINITION_BLOCK_RE);
 
   return Array.from(matches)
-    .map((match) =>
-      match[0]
+    .map((match) => {
+      const inner = match[0]
+        .replace(/^\/\*\*\s*\n/, "") // strip opening /**
+        .replace(/\s*\*\/\s*$/, ""); // strip closing */
+
+      return inner
         .split("\n")
-        .slice(1, -1) // remove /** and */
         .map((line, idx) =>
           idx === 0 ? "// " + line.replace(/^\s*\* ?/, "") : line.replace(/^\s*\* ?/, ""),
-        ) // remove leading " * "
+        )
         .join("\n")
-        .trim(),
-    )
+        .trim();
+    })
     .join("\n\n");
 }
-
-function addTest() {}
