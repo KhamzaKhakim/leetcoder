@@ -1,6 +1,6 @@
 {
   "name": "leetcoder",
-  "publisher": "khamza-khakim",
+  "publisher": "khamzakhakim",
   "displayName": "leetcoder",
   "description": "Leetcode VS-code extension",
   "version": "0.0.1",
@@ -17,6 +17,14 @@
       {
         "command": "leetcoder.openProblem",
         "title": "LeetCoder: Open Problem"
+      },
+      {
+        "command": "leetcoder.login",
+        "title": "LeetCoder: Login"
+      },
+      {
+        "command": "leetcoder.getCookie",
+        "title": "LeetCoder: Get Cookie (For Testing)"
       }
     ]
   },
