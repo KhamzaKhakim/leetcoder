@@ -1,0 +1,15 @@
+body {
+  padding: 20px;
+  background-color: var(--vscode-editor-background);
+  color: var(--vscode-editor-foreground);
+  font-family: var(--vscode-font-family);
+  max-width: 100%;
+  /* white-space: pre-wrap; */
+  overflow-wrap: break-word;
+}
+
+.example-block {
+  background-color: var(--vscode-textCodeBlock-background);
+  padding: 10px 20px;
+  margin-top: 10px;
+}

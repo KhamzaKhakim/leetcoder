@@ -6,6 +6,7 @@ import { fetchProblemDetail } from "./fetcher";
 import { FILE_NAME } from "./constants";
 import { existsSync } from "fs";
 import { checkFileExists } from "./utils";
+import { createProblemWebview } from "./createProblemWebview";
 
 let STATE = { isFetching: false };
 
@@ -108,20 +109,7 @@ export function activate(context: vscode.ExtensionContext) {
         await vscode.workspace.fs.writeFile(uri, encoder.encode(formattedCode));
         await vscode.window.showTextDocument(uri);
       }
-
-      //TODO: Add webview with the task description
-      const panel = vscode.window.createWebviewPanel(
-        "leetcoder",
-        "Task",
-        {
-          viewColumn: 2,
-          preserveFocus: false,
-        },
-        {
-          retainContextWhenHidden: true, // Keeps the site loaded even if the user switches tabs
-        },
-      );
-      panel.webview.html = detail.contentHtml;
+      createProblemWebview(detail, context);
     });
   });
   context.subscriptions.push(openProblemCommand);
