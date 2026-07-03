@@ -6,6 +6,7 @@ import { fetchProblemDetail } from "./fetcher";
 import { FILE_NAME } from "./constants";
 import { existsSync } from "fs";
 import { checkFileExists } from "./utils";
+import { handleUriSignIn, login } from "./login";
 import { createProblemWebview } from "./createProblemWebview";
 
 let STATE = { isFetching: false };
@@ -112,7 +113,19 @@ export function activate(context: vscode.ExtensionContext) {
       createProblemWebview(detail, context);
     });
   });
-  context.subscriptions.push(openProblemCommand);
+
+  const loginCommand = vscode.commands.registerCommand("leetcoder.login", () => {
+    login();
+  });
+
+  //Test
+  const getCookie = vscode.commands.registerCommand("leetcoder.getCookie", async () => {
+    const cookie = await context.secrets.get("leetcode.cookie");
+    console.log("cookie: " + cookie);
+  });
+
+  context.subscriptions.push(openProblemCommand, loginCommand, getCookie);
+  vscode.window.registerUriHandler({ handleUri: (uri) => handleUriSignIn(uri, context) });
 }
 
 export function deactivate() {}
