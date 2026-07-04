@@ -25,6 +25,10 @@
       {
         "command": "leetcoder.getCookie",
         "title": "LeetCoder: Get Cookie (For Testing)"
+      },
+      {
+        "command": "leetcoder.upload",
+        "title": "LeetCoder: Upload (For Testing)"
       }
     ]
   },

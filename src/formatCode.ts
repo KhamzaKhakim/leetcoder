@@ -3,7 +3,7 @@ export function formatCode(snippet: string) {
   if (hasDefinition(snippet)) {
     const def = extractDefinitions(snippet);
     const code = stripDefinitions(snippet);
-    formattedCode = def + "\n\n" + code;
+    formattedCode = def + "\n\n// @leetcode:start\n" + code + "\n// @leetcode:end";
   } else {
     formattedCode = snippet;
   }
