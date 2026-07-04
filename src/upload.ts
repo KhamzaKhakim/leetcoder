@@ -1,4 +1,5 @@
 import * as vscode from "vscode";
+import { SubmissionResponse } from "./types";
 
 export async function upload({
   titleSlug,
@@ -11,14 +12,6 @@ export async function upload({
   id: number;
   context: vscode.ExtensionContext;
 }) {
-  console.log(
-    JSON.stringify({
-      lang: "typescript",
-      question_id: id,
-      typed_code: code,
-    }),
-  );
-
   const cookie = await context.secrets.get("leetcode.cookie");
 
   if (!cookie) {
@@ -40,11 +33,12 @@ export async function upload({
     }),
   });
 
-  const json = await res.text();
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(`Submit failed: ${res.status} ${res.statusText} — ${errorText}`);
+  }
 
-  console.log("Response:");
-  console.log(res.status);
-  console.log(JSON.stringify(json));
+  const json = (await res.json()) as SubmissionResponse;
 
   return json;
 }

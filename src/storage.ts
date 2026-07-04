@@ -14,7 +14,6 @@ export async function getProblemList(
     isFetching: boolean;
   },
 ): Promise<Problem[]> {
-  context.globalState.get("leetcoder.fetching-problems");
   const cacheFile = vscode.Uri.joinPath(context.globalStorageUri, FILE_NAME);
   console.log(cacheFile.path);
 

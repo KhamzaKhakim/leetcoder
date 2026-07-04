@@ -81,7 +81,9 @@ export function activate(context: vscode.ExtensionContext) {
       const formattedCode = formatCode(tsSnippet);
 
       if (await checkFileExists(`${titleSlug}.ts`)) {
-        await vscode.window.showTextDocument(uri);
+        await vscode.window.showTextDocument(uri, {
+          viewColumn: 1,
+        });
         const editor = vscode.window.activeTextEditor!;
         const isEmpty = editor.document.getText().trim() === "";
 
@@ -110,7 +112,9 @@ export function activate(context: vscode.ExtensionContext) {
       } else {
         const encoder = new TextEncoder();
         await vscode.workspace.fs.writeFile(uri, encoder.encode(formattedCode));
-        await vscode.window.showTextDocument(uri);
+        await vscode.window.showTextDocument(uri, {
+          viewColumn: 1,
+        });
       }
       createProblemWebview(detail, context);
     });
@@ -147,6 +151,8 @@ export function activate(context: vscode.ExtensionContext) {
       code,
       context,
     });
+
+    vscode.window.showInformationMessage("Submitted the code");
   });
 
   //Test

@@ -74,3 +74,7 @@ export interface ProblemCache {
   total: number;
   fetchedAt: number;
 }
+
+export interface SubmissionResponse {
+  submission_id: number;
+}

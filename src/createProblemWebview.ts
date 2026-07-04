@@ -8,7 +8,7 @@ export function createProblemWebview(detail: ProblemDetail, context: vscode.Exte
     detail.title,
     {
       viewColumn: 2,
-      preserveFocus: false,
+      preserveFocus: true,
     },
     {
       localResourceRoots: [vscode.Uri.file(context.extensionPath)],
