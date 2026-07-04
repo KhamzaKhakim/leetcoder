@@ -1,13 +1,15 @@
 import * as vscode from "vscode";
 import { Problem } from "./types";
 import { formatCode } from "./formatCode";
-import { getProblemList } from "./storage";
+import { getProblemList, getProblemListUpload } from "./storage";
 import { fetchProblemDetail } from "./fetcher";
 import { FILE_NAME } from "./constants";
 import { existsSync } from "fs";
 import { checkFileExists } from "./utils";
 import { handleUriSignIn, login } from "./login";
 import { createProblemWebview } from "./createProblemWebview";
+import { getUploadCode, upload } from "./upload";
+import * as path from "path";
 
 let STATE = { isFetching: false };
 
@@ -118,13 +120,43 @@ export function activate(context: vscode.ExtensionContext) {
     login();
   });
 
+  const uploadCommand = vscode.commands.registerCommand("leetcoder.upload", async () => {
+    const response = await getProblemListUpload(context);
+
+    const editor = vscode.window.activeTextEditor;
+    if (!editor) {
+      vscode.window.showErrorMessage("No active file open.");
+      return;
+    }
+
+    const filePath = editor.document.fileName;
+    const fileNameNoExt = path.parse(filePath).name;
+
+    const problem = response.find((p) => p.titleSlug === fileNameNoExt);
+
+    if (!problem) {
+      vscode.window.showErrorMessage("Could not match this file to a LeetCode problem.");
+      return;
+    }
+
+    const code = getUploadCode(editor.document.getText());
+
+    const res = await upload({
+      titleSlug: problem.titleSlug,
+      id: problem.id,
+      code,
+      context,
+    });
+  });
+
   //Test
   const getCookie = vscode.commands.registerCommand("leetcoder.getCookie", async () => {
     const cookie = await context.secrets.get("leetcode.cookie");
     console.log("cookie: " + cookie);
+    console.log("csfr: " + cookie?.split(";")[1]);
   });
 
-  context.subscriptions.push(openProblemCommand, loginCommand, getCookie);
+  context.subscriptions.push(openProblemCommand, loginCommand, getCookie, uploadCommand);
   vscode.window.registerUriHandler({ handleUri: (uri) => handleUriSignIn(uri, context) });
 }
 

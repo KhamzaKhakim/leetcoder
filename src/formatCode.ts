@@ -5,7 +5,7 @@ export function formatCode(snippet: string) {
     const code = stripDefinitions(snippet);
     formattedCode = def + "\n\n// @leetcode:start\n" + code + "\n// @leetcode:end";
   } else {
-    formattedCode = snippet;
+    formattedCode = "// @leetcode:start\n" + snippet + "\n// @leetcode:end";
   }
 
   return formattedCode;
