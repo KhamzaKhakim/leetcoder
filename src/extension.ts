@@ -5,7 +5,7 @@ import { getProblemList, getProblemListUpload } from "./storage";
 import { fetchProblemDetail } from "./fetcher";
 import { FILE_NAME } from "./constants";
 import { existsSync } from "fs";
-import { checkFileExists } from "./utils";
+import { checkFileExists, FILE_EXTENSION_RECORD } from "./utils";
 import { handleUriSignIn, login } from "./login";
 import { createProblemWebview } from "./createProblemWebview";
 import { getUploadCode, upload } from "./upload";
@@ -69,18 +69,24 @@ export function activate(context: vscode.ExtensionContext) {
       const { titleSlug } = selected.problem;
       const detail = await fetchProblemDetail(titleSlug);
 
-      const uri = vscode.Uri.joinPath(vscode.workspace.workspaceFolders![0].uri, `${titleSlug}.ts`);
+      const config = vscode.workspace.getConfiguration("leetcoder");
+      const language = config.get<string>("language")!; //TODO: ensure new select value if it does not exists
 
-      const tsSnippet = detail.codeSnippets?.find((c) => c.langSlug === "typescript")?.code;
+      const uri = vscode.Uri.joinPath(
+        vscode.workspace.workspaceFolders![0].uri,
+        `${titleSlug}.${FILE_EXTENSION_RECORD[language]}`,
+      );
 
-      if (!tsSnippet) {
+      const snippet = detail.codeSnippets?.find((c) => c.langSlug === language)?.code;
+
+      if (!snippet) {
         vscode.window.showWarningMessage("No TypeScript snippet found for this problem.");
         return;
       }
 
-      const formattedCode = formatCode(tsSnippet);
+      const formattedCode = formatCode(snippet);
 
-      if (await checkFileExists(`${titleSlug}.ts`)) {
+      if (await checkFileExists(`${titleSlug}.${FILE_EXTENSION_RECORD[language]}`)) {
         await vscode.window.showTextDocument(uri, {
           viewColumn: 1,
         });
@@ -89,7 +95,7 @@ export function activate(context: vscode.ExtensionContext) {
 
         if (!isEmpty) {
           const answer = await vscode.window.showWarningMessage(
-            `${titleSlug}.ts already has code. Reset it?`,
+            `${titleSlug}.${FILE_EXTENSION_RECORD[language]} already has code. Reset it?`,
             "Reset",
             "Cancel",
           );
@@ -184,7 +190,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     if (picked) {
       await config.update("language", picked.value, vscode.ConfigurationTarget.Global);
-      vscode.window.showInformationMessage(`LeetCoder language set to ${picked.value}`);
+      vscode.window.showInformationMessage(`LeetCoder language set to ${picked.label}`);
     }
   });
 

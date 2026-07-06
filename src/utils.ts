@@ -24,3 +24,17 @@ export async function checkFileExists(path: string) {
   );
   return fileExists(fileUri);
 }
+
+export const FILE_EXTENSION_RECORD: Record<string, string> = {
+  python: "py",
+  javascript: "js",
+  typescript: "ts",
+  java: "java",
+  cpp: "cpp",
+  c: "c",
+  csharp: "cs",
+  go: "go",
+  rust: "rs",
+  kotlin: "kt",
+  swift: "swift",
+};
