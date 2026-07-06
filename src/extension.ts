@@ -155,14 +155,75 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.window.showInformationMessage("Submitted the code");
   });
 
-  //Test
-  const getCookie = vscode.commands.registerCommand("leetcoder.getCookie", async () => {
+  const setLanguageCommand = vscode.commands.registerCommand("leetcoder.setLanguage", async () => {
+    const config = vscode.workspace.getConfiguration("leetcoder");
+    const current = config.get<string>("language");
+
+    const languages = [
+      { label: "Python 3", value: "python" },
+      { label: "JavaScript", value: "javascript" },
+      { label: "TypeScript", value: "typescript" },
+      { label: "Java", value: "java" },
+      { label: "C++", value: "cpp" },
+      { label: "C", value: "c" },
+      { label: "C#", value: "csharp" },
+      { label: "Go", value: "go" },
+      { label: "Rust", value: "rust" },
+      { label: "Kotlin", value: "kotlin" },
+      { label: "Swift", value: "swift" },
+    ];
+
+    const items = languages.map((l) => ({
+      label: l.value === current ? `$(check) ${l.label}` : l.label,
+      value: l.value,
+    }));
+
+    const picked = await vscode.window.showQuickPick(items, {
+      placeHolder: `Current: ${current} — select a new language`,
+    });
+
+    if (picked) {
+      await config.update("language", picked.value, vscode.ConfigurationTarget.Global);
+      vscode.window.showInformationMessage(`LeetCoder language set to ${picked.value}`);
+    }
+  });
+
+  const setPathCommand = vscode.commands.registerCommand("leetcoder.setPath", async () => {
+    const config = vscode.workspace.getConfiguration("leetcoder");
+    const current = config.get<string>("path", "");
+
+    const input = await vscode.window.showInputBox({
+      prompt: "Folder to save LeetCode solutions (relative to workspace root, e.g. src)",
+      placeHolder: "Leave empty to use workspace root",
+      value: current,
+    });
+
+    // undefined means user pressed Escape — don't overwrite in that case
+    if (input === undefined) {
+      return;
+    }
+
+    await config.update("path", input, vscode.ConfigurationTarget.Global);
+
+    vscode.window.showInformationMessage(
+      input ? `LeetCoder path set to "${input}"` : "LeetCoder path set to workspace root",
+    );
+  });
+
+  const getCookieCommand = vscode.commands.registerCommand("leetcoder.getCookie", async () => {
     const cookie = await context.secrets.get("leetcode.cookie");
     console.log("cookie: " + cookie);
     console.log("csfr: " + cookie?.split(";")[1]);
   });
 
-  context.subscriptions.push(openProblemCommand, loginCommand, getCookie, uploadCommand);
+  context.subscriptions.push(
+    openProblemCommand,
+    loginCommand,
+    getCookieCommand,
+    uploadCommand,
+    setLanguageCommand,
+    setPathCommand,
+  );
   vscode.window.registerUriHandler({ handleUri: (uri) => handleUriSignIn(uri, context) });
 }
 

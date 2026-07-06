@@ -29,8 +29,59 @@
       {
         "command": "leetcoder.upload",
         "title": "LeetCoder: Upload (For Testing)"
+      },
+      {
+        "command": "leetcoder.setLanguage",
+        "title": "LeetCoder: Set Language"
+      },
+      {
+        "command": "leetcoder.setPath",
+        "title": "LeetCoder: Set Solutions Path"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "LeetCoder",
+      "type": "object",
+      "properties": {
+        "leetcoder.language": {
+          "type": "string",
+          "default": "python",
+          "enum": [
+            "python",
+            "javascript",
+            "typescript",
+            "java",
+            "cpp",
+            "c",
+            "csharp",
+            "go",
+            "rust",
+            "kotlin",
+            "swift"
+          ],
+          "enumDescriptions": [
+            "Python 3",
+            "JavaScript",
+            "TypeScript",
+            "Java",
+            "C++",
+            "C",
+            "C#",
+            "Go",
+            "Rust",
+            "Kotlin",
+            "Swift"
+          ],
+          "description": "Programming language to use for solving LeetCode problems"
+        },
+        "leetcoder.path": {
+          "type": "string",
+          "default": "",
+          "description": "Path to the folder where LeetCode solution files will be saved",
+          "scope": "resource"
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run package",
