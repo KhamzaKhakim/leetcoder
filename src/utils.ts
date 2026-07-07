@@ -26,3 +26,22 @@ export const FILE_EXTENSION_RECORD: Record<string, string> = {
   kotlin: "kt",
   swift: "swift",
 };
+
+export const LANGUAGE_NAME_RECORD: Record<string, string> = {
+  python: "Python",
+  javascript: "Javascript",
+  typescript: "Typescript",
+  java: "Java",
+  cpp: "C++",
+  c: "C",
+  csharp: "C#",
+  go: "GO",
+  rust: "Rust",
+  kotlin: "Kotlin",
+  swift: "Swift",
+};
+
+export function setCursorLine(editor: vscode.TextEditor, line: number, character = 0) {
+  const position = new vscode.Position(line, character);
+  editor.selection = new vscode.Selection(position, position);
+}

@@ -1,14 +1,22 @@
-export function formatCode(snippet: string) {
+export function formatCode(snippet: string): {
+  code: string;
+  cursor: number;
+} {
   let formattedCode = "";
+  let cursor = 0;
   if (hasDefinition(snippet)) {
     const def = extractDefinitions(snippet);
+
+    const lineCount = def.split("\n").length + 1;
     const code = stripDefinitions(snippet);
     formattedCode = def + "\n\n// @leetcode:start\n" + code + "\n// @leetcode:end";
+    cursor = lineCount + 4;
   } else {
     formattedCode = "// @leetcode:start\n" + snippet + "\n// @leetcode:end";
+    cursor = 3;
   }
 
-  return formattedCode;
+  return { code: formattedCode, cursor };
 }
 
 const DEFINITION_BLOCK_RE = /\/\*\*\s*\n\s*\*\s*Definition for[\s\S]*?\*\/\n?/g;

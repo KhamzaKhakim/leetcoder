@@ -5,7 +5,7 @@ import { getProblemList, getProblemListUpload } from "./storage";
 import { fetchProblemDetail } from "./fetcher";
 import { FILE_NAME } from "./constants";
 import { existsSync } from "fs";
-import { FILE_EXTENSION_RECORD, fileExistsAtUri } from "./utils";
+import { FILE_EXTENSION_RECORD, fileExistsAtUri, LANGUAGE_NAME_RECORD } from "./utils";
 import { handleUriSignIn, login } from "./login";
 import { createProblemWebview } from "./createProblemWebview";
 import { getUploadCode, upload } from "./upload";
@@ -78,7 +78,7 @@ export function activate(context: vscode.ExtensionContext) {
         throw new Error("Language config is empty");
       }
 
-      if (!path) {
+      if (path === undefined) {
         throw new Error("Path config is empty");
       }
 
@@ -91,17 +91,20 @@ export function activate(context: vscode.ExtensionContext) {
       const snippet = detail.codeSnippets?.find((c) => c.langSlug === language)?.code;
 
       if (!snippet) {
-        vscode.window.showWarningMessage("No TypeScript snippet found for this problem.");
+        vscode.window.showWarningMessage(
+          `No ${LANGUAGE_NAME_RECORD[language]} snippet found for this problem.`,
+        );
         return;
       }
 
-      const formattedCode = formatCode(snippet);
+      const formattedObj = formatCode(snippet);
+      const editor = vscode.window.activeTextEditor!;
 
       if (await fileExistsAtUri(uri)) {
         await vscode.window.showTextDocument(uri, {
           viewColumn: 1,
         });
-        const editor = vscode.window.activeTextEditor!;
+
         const isEmpty = editor.document.getText().trim() === "";
 
         if (!isEmpty) {
@@ -116,23 +119,22 @@ export function activate(context: vscode.ExtensionContext) {
         }
 
         editor.edit((editBuilder) => {
-          if (isEmpty) {
-            editBuilder.insert(new vscode.Position(0, 0), formattedCode);
-          } else {
-            const fullRange = new vscode.Range(
-              new vscode.Position(0, 0),
-              editor.document.lineAt(editor.document.lineCount - 1).range.end,
-            );
-            editBuilder.replace(fullRange, formattedCode);
-          }
+          const fullRange = new vscode.Range(
+            new vscode.Position(0, 0),
+            editor.document.lineAt(editor.document.lineCount - 1).range.end,
+          );
+          editBuilder.replace(fullRange, formattedObj.code);
         });
       } else {
         const encoder = new TextEncoder();
-        await vscode.workspace.fs.writeFile(uri, encoder.encode(formattedCode));
+        await vscode.workspace.fs.writeFile(uri, encoder.encode(formattedObj.code));
         await vscode.window.showTextDocument(uri, {
           viewColumn: 1,
         });
       }
+
+      //set cursor
+      // setCursorLine(editor, formattedObj.cursor);
       createProblemWebview(detail, context);
     });
   });
