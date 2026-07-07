@@ -5,7 +5,7 @@ import { getProblemList, getProblemListUpload } from "./storage";
 import { fetchProblemDetail } from "./fetcher";
 import { FILE_NAME } from "./constants";
 import { existsSync } from "fs";
-import { checkFileExists, FILE_EXTENSION_RECORD } from "./utils";
+import { FILE_EXTENSION_RECORD, fileExistsAtUri } from "./utils";
 import { handleUriSignIn, login } from "./login";
 import { createProblemWebview } from "./createProblemWebview";
 import { getUploadCode, upload } from "./upload";
@@ -70,10 +70,21 @@ export function activate(context: vscode.ExtensionContext) {
       const detail = await fetchProblemDetail(titleSlug);
 
       const config = vscode.workspace.getConfiguration("leetcoder");
-      const language = config.get<string>("language")!; //TODO: ensure new select value if it does not exists
+
+      const language = config.get<string>("language");
+      const path = config.get<string>("path");
+
+      if (!language) {
+        throw new Error("Language config is empty");
+      }
+
+      if (!path) {
+        throw new Error("Path config is empty");
+      }
 
       const uri = vscode.Uri.joinPath(
         vscode.workspace.workspaceFolders![0].uri,
+        path,
         `${titleSlug}.${FILE_EXTENSION_RECORD[language]}`,
       );
 
@@ -86,7 +97,7 @@ export function activate(context: vscode.ExtensionContext) {
 
       const formattedCode = formatCode(snippet);
 
-      if (await checkFileExists(`${titleSlug}.${FILE_EXTENSION_RECORD[language]}`)) {
+      if (await fileExistsAtUri(uri)) {
         await vscode.window.showTextDocument(uri, {
           viewColumn: 1,
         });
@@ -216,16 +227,16 @@ export function activate(context: vscode.ExtensionContext) {
     );
   });
 
-  const getCookieCommand = vscode.commands.registerCommand("leetcoder.getCookie", async () => {
-    const cookie = await context.secrets.get("leetcode.cookie");
-    console.log("cookie: " + cookie);
-    console.log("csfr: " + cookie?.split(";")[1]);
-  });
+  // const getCookieCommand = vscode.commands.registerCommand("leetcoder.getCookie", async () => {
+  //   const cookie = await context.secrets.get("leetcode.cookie");
+  //   console.log("cookie: " + cookie);
+  //   console.log("csfr: " + cookie?.split(";")[1]);
+  // });
 
   context.subscriptions.push(
     openProblemCommand,
     loginCommand,
-    getCookieCommand,
+    // getCookieCommand,
     uploadCommand,
     setLanguageCommand,
     setPathCommand,
