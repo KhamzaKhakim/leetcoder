@@ -9,10 +9,10 @@ export function formatCode(snippet: string): {
 
     const lineCount = def.split("\n").length + 1;
     const code = stripDefinitions(snippet);
-    formattedCode = def + "\n\n// @leetcode:start\n" + code + "\n// @leetcode:end";
+    formattedCode = def + "\n\n// @leetcode:start\n" + code + "\n// @leetcode:end\n";
     cursor = lineCount + 4;
   } else {
-    formattedCode = "// @leetcode:start\n" + snippet + "\n// @leetcode:end";
+    formattedCode = "// @leetcode:start\n" + snippet + "\n// @leetcode:end\n";
     cursor = 3;
   }
 

@@ -5,11 +5,17 @@ import { getProblemList, getProblemListUpload } from "./storage";
 import { fetchProblemDetail } from "./fetcher";
 import { FILE_NAME } from "./constants";
 import { existsSync } from "fs";
-import { FILE_EXTENSION_RECORD, fileExistsAtUri, LANGUAGE_NAME_RECORD } from "./utils";
+import {
+  FILE_EXTENSION_RECORD,
+  fileExistsAtUri,
+  LANGUAGE_NAME_RECORD,
+  // setCursorLine,
+} from "./utils";
 import { handleUriSignIn, login } from "./login";
 import { createProblemWebview } from "./createProblemWebview";
 import { getUploadCode, upload } from "./upload";
 import * as path from "path";
+import { UploadCodeLensProvider } from "./codelens";
 
 let STATE = { isFetching: false };
 
@@ -229,12 +235,6 @@ export function activate(context: vscode.ExtensionContext) {
     );
   });
 
-  // const getCookieCommand = vscode.commands.registerCommand("leetcoder.getCookie", async () => {
-  //   const cookie = await context.secrets.get("leetcode.cookie");
-  //   console.log("cookie: " + cookie);
-  //   console.log("csfr: " + cookie?.split(";")[1]);
-  // });
-
   context.subscriptions.push(
     openProblemCommand,
     loginCommand,
@@ -243,6 +243,14 @@ export function activate(context: vscode.ExtensionContext) {
     setLanguageCommand,
     setPathCommand,
   );
+
+  context.subscriptions.push(
+    vscode.languages.registerCodeLensProvider(
+      { scheme: "file" },
+      new UploadCodeLensProvider("leetcoder.upload"),
+    ),
+  );
+
   vscode.window.registerUriHandler({ handleUri: (uri) => handleUriSignIn(uri, context) });
 }
 

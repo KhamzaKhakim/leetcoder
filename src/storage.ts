@@ -15,7 +15,6 @@ export async function getProblemList(
   },
 ): Promise<Problem[]> {
   const cacheFile = vscode.Uri.joinPath(context.globalStorageUri, FILE_NAME);
-  console.log(cacheFile.path);
 
   try {
     const raw = await vscode.workspace.fs.readFile(cacheFile);
