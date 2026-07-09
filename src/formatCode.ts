@@ -1,4 +1,11 @@
-export function formatCode(snippet: string): {
+import { Language } from "./types";
+
+//TODO: fix code formatting and adding markers
+// Python and Rust at least has different comment system
+export function formatCode(
+  snippet: string,
+  language: Language,
+): {
   code: string;
   cursor: number;
 } {
@@ -22,7 +29,7 @@ export function formatCode(snippet: string): {
 const DEFINITION_BLOCK_RE = /\/\*\*\s*\n\s*\*\s*Definition for[\s\S]*?\*\/\n?/g;
 
 function hasDefinition(snippet: string): boolean {
-  return /\/\*\*\s*\n\s*\* Definition for/.test(snippet);
+  return /Definition for/.test(snippet);
 }
 
 function stripDefinitions(snippet: string): string {

@@ -78,3 +78,17 @@ export interface ProblemCache {
 export interface SubmissionResponse {
   submission_id: number;
 }
+
+export type Language =
+  | "python"
+  | "python3"
+  | "javascript"
+  | "typescript"
+  | "java"
+  | "cpp"
+  | "c"
+  | "csharp"
+  | "go"
+  | "rust"
+  | "kotlin"
+  | "swift";

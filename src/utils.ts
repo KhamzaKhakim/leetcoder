@@ -29,6 +29,7 @@ export const FILE_EXTENSION_RECORD: Record<string, string> = {
 
 export const LANGUAGE_NAME_RECORD: Record<string, string> = {
   python: "Python",
+  python3: "Python",
   javascript: "Javascript",
   typescript: "Typescript",
   java: "Java",
@@ -39,6 +40,20 @@ export const LANGUAGE_NAME_RECORD: Record<string, string> = {
   rust: "Rust",
   kotlin: "Kotlin",
   swift: "Swift",
+};
+
+const COMMENT_PREFIX_BY_EXTENSION_RECORD: Record<string, string> = {
+  py: "#",
+  js: "//",
+  ts: "//",
+  java: "//",
+  cpp: "//",
+  c: "//",
+  cs: "//",
+  go: "//",
+  rs: "//",
+  kt: "//",
+  swift: "//",
 };
 
 export function setCursorLine(editor: vscode.TextEditor, line: number, character = 0) {

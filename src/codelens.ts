@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 
-export class UploadCodeLensProvider implements vscode.CodeLensProvider {
+export class LeetCoderCodeLensProvider implements vscode.CodeLensProvider {
   constructor(private commandId: string) {}
 
   provideCodeLenses(document: vscode.TextDocument): vscode.CodeLens[] {

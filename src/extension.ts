@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { Problem } from "./types";
+import { Language, Problem } from "./types";
 import { formatCode } from "./formatCode";
 import { getProblemList, getProblemListUpload } from "./storage";
 import { fetchProblemDetail } from "./fetcher";
@@ -15,7 +15,7 @@ import { handleUriSignIn, login } from "./login";
 import { createProblemWebview } from "./createProblemWebview";
 import { getUploadCode, upload } from "./upload";
 import * as path from "path";
-import { UploadCodeLensProvider } from "./codelens";
+import { LeetCoderCodeLensProvider } from "./codelens";
 
 let STATE = { isFetching: false };
 
@@ -77,7 +77,7 @@ export function activate(context: vscode.ExtensionContext) {
 
       const config = vscode.workspace.getConfiguration("leetcoder");
 
-      const language = config.get<string>("language");
+      const language = config.get<string>("language") as Language;
       const path = config.get<string>("path");
 
       if (!language) {
@@ -103,7 +103,7 @@ export function activate(context: vscode.ExtensionContext) {
         return;
       }
 
-      const formattedObj = formatCode(snippet);
+      const formattedObj = formatCode(snippet, language);
       const editor = vscode.window.activeTextEditor!;
 
       if (await fileExistsAtUri(uri)) {
@@ -149,7 +149,9 @@ export function activate(context: vscode.ExtensionContext) {
     login();
   });
 
-  const uploadCommand = vscode.commands.registerCommand("leetcoder.upload", async () => {
+  const uploadCommandId = "leetcoder.upload";
+
+  const uploadCommand = vscode.commands.registerCommand(uploadCommandId, async () => {
     const response = await getProblemListUpload(context);
 
     const editor = vscode.window.activeTextEditor;
@@ -184,7 +186,7 @@ export function activate(context: vscode.ExtensionContext) {
     const config = vscode.workspace.getConfiguration("leetcoder");
     const current = config.get<string>("language");
 
-    const languages = [
+    const languages: { label: string; value: Language }[] = [
       { label: "Python 3", value: "python" },
       { label: "JavaScript", value: "javascript" },
       { label: "TypeScript", value: "typescript" },
@@ -235,20 +237,18 @@ export function activate(context: vscode.ExtensionContext) {
     );
   });
 
-  context.subscriptions.push(
-    openProblemCommand,
-    loginCommand,
-    // getCookieCommand,
-    uploadCommand,
-    setLanguageCommand,
-    setPathCommand,
+  const codelensProvider = vscode.languages.registerCodeLensProvider(
+    { scheme: "file" },
+    new LeetCoderCodeLensProvider(uploadCommandId),
   );
 
   context.subscriptions.push(
-    vscode.languages.registerCodeLensProvider(
-      { scheme: "file" },
-      new UploadCodeLensProvider("leetcoder.upload"),
-    ),
+    openProblemCommand,
+    loginCommand,
+    uploadCommand,
+    codelensProvider,
+    setLanguageCommand,
+    setPathCommand,
   );
 
   vscode.window.registerUriHandler({ handleUri: (uri) => handleUriSignIn(uri, context) });
