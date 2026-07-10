@@ -16,6 +16,7 @@ import { getUploadCode, upload } from "./upload";
 import * as path from "path";
 import { LeetCoderCodeLensProvider } from "./codelens";
 import { createProblemWebview } from "./webview";
+import { webviewRegistry } from "./webviewRegistry";
 
 let STATE = { isFetching: false };
 
@@ -141,7 +142,7 @@ export function activate(context: vscode.ExtensionContext) {
 
       //set cursor
       // setCursorLine(editor, formattedObj.cursor);
-      createProblemWebview(detail, context);
+      createProblemWebview(detail, context, uri.toString());
     });
   });
 
@@ -240,9 +241,33 @@ export function activate(context: vscode.ExtensionContext) {
     );
   });
 
+  const openDescriptionCommand = vscode.commands.registerCommand(
+    "leetcoder.openDescription",
+    async () => {
+      const uri = vscode.window.activeTextEditor?.document.uri;
+
+      if (!uri) {
+        vscode.window.showErrorMessage("File is not opened.");
+        return;
+      }
+
+      const fileName = path.parse(uri.fsPath).name;
+
+      const existing = webviewRegistry.get(uri.toString());
+      if (existing) {
+        existing.reveal(vscode.ViewColumn.Two, true);
+        return existing;
+      }
+
+      const detail = await fetchProblemDetail(fileName);
+
+      createProblemWebview(detail, context, uri.toString());
+    },
+  );
+
   const codelensProvider = vscode.languages.registerCodeLensProvider(
     { scheme: "file" },
-    new LeetCoderCodeLensProvider(uploadCommandId),
+    new LeetCoderCodeLensProvider(uploadCommandId, "leetcoder.openDescription"),
   );
 
   context.subscriptions.push(
@@ -252,6 +277,7 @@ export function activate(context: vscode.ExtensionContext) {
     codelensProvider,
     setLanguageCommand,
     setPathCommand,
+    openDescriptionCommand,
   );
 
   vscode.window.registerUriHandler({ handleUri: (uri) => handleUriSignIn(uri, context) });

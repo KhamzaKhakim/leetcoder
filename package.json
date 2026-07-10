@@ -35,6 +35,10 @@
       {
         "command": "leetcoder.setPath",
         "title": "LeetCoder: Set Solutions Path"
+      },
+      {
+        "command": "leetcoder.openDescription",
+        "title": "LeetCoder: Open task description"
       }
     ],
     "configuration": {

@@ -1,12 +1,24 @@
 import path from "path";
 import { ProblemDetail } from "./types";
 import * as vscode from "vscode";
+import { webviewRegistry } from "./webviewRegistry";
 
-export function createProblemWebview(detail: ProblemDetail, context: vscode.ExtensionContext) {
+export function createProblemWebview(
+  detail: ProblemDetail,
+  context: vscode.ExtensionContext,
+  key: string,
+) {
+  const existing = webviewRegistry.get(key);
+  if (existing) {
+    existing.reveal(vscode.ViewColumn.Two, true);
+    return existing;
+  }
+
   const panel = vscode.window.createWebviewPanel("leetcoder", detail.title, {
     viewColumn: 2,
     preserveFocus: true,
   });
+  webviewRegistry.register(key, panel);
   const onDiskPath = vscode.Uri.file(path.join(context.extensionPath, "src", "style.css"));
 
   // 2. Convert the disk path to a special Webview URI
@@ -87,6 +99,7 @@ export function createUploadWebview(
         </head>
         <body>
       `;
+
   let content = detail.contentHtml;
   // search for all examples
   let x = content.indexOf('<p><strong class="example">Example');

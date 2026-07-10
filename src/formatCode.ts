@@ -19,7 +19,7 @@ export function formatCode(
 
     cursor = lineCount + 4;
   } else {
-    formattedCode = `${comment} @leetcode:start\n" + snippet + "\n${comment} @leetcode:end\n`;
+    formattedCode = `${comment} @leetcode:start\n` + snippet + `\n${comment} @leetcode:end\n`;
     cursor = 3;
   }
 
