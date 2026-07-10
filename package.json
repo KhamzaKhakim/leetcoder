@@ -46,6 +46,7 @@
           "default": "python",
           "enum": [
             "python",
+            "python3",
             "javascript",
             "typescript",
             "java",
@@ -58,6 +59,7 @@
             "swift"
           ],
           "enumDescriptions": [
+            "Python",
             "Python 3",
             "JavaScript",
             "TypeScript",

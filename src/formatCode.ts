@@ -1,7 +1,6 @@
 import { Language } from "./types";
+import { COMMENT_PREFIX_BY_EXTENSION_RECORD } from "./utils";
 
-//TODO: fix code formatting and adding markers
-// Python and Rust at least has different comment system
 export function formatCode(
   snippet: string,
   language: Language,
@@ -11,15 +10,16 @@ export function formatCode(
 } {
   let formattedCode = "";
   let cursor = 0;
+  const comment = COMMENT_PREFIX_BY_EXTENSION_RECORD[language];
   if (hasDefinition(snippet)) {
-    const def = extractDefinitions(snippet);
-
+    const [def, code] = extractDefinitionsAndCode(snippet, language);
     const lineCount = def.split("\n").length + 1;
-    const code = stripDefinitions(snippet);
-    formattedCode = def + "\n\n// @leetcode:start\n" + code + "\n// @leetcode:end\n";
+    formattedCode =
+      def + `\n\n${comment} @leetcode:start\n` + code + `\n${comment} @leetcode:end\n`;
+
     cursor = lineCount + 4;
   } else {
-    formattedCode = "// @leetcode:start\n" + snippet + "\n// @leetcode:end\n";
+    formattedCode = `${comment} @leetcode:start\n" + snippet + "\n${comment} @leetcode:end\n`;
     cursor = 3;
   }
 
@@ -32,26 +32,55 @@ function hasDefinition(snippet: string): boolean {
   return /Definition for/.test(snippet);
 }
 
-function stripDefinitions(snippet: string): string {
-  return snippet.replace(DEFINITION_BLOCK_RE, "").trim();
+function extractDefinitionsAndCode(snippet: string, language: Language): [string, string] {
+  if (language === "python" || language === "python3") {
+    return extractLineCommentDefinitions(snippet, "#");
+  } else if (language === "rust") {
+    return extractLineCommentDefinitions(snippet, "//");
+  }
+
+  const matches = snippet.matchAll(DEFINITION_BLOCK_RE);
+  return [
+    Array.from(matches)
+      .map((match) => {
+        const inner = match[0].replace(/^\/\*\*\s*\n/, "").replace(/\s*\*\/\s*$/, "");
+
+        return inner
+          .split("\n")
+          .map((line, idx) =>
+            idx === 0 ? "// " + line.replace(/^\s*\* ?/, "") : line.replace(/^\s*\* ?/, ""),
+          )
+          .join("\n")
+          .trim();
+      })
+      .join("\n\n"),
+    snippet.replace(/\/\*\*\s*\n\s*\*\s*Definition for[\s\S]*?\*\/\n?/g, "").trim(),
+  ];
 }
 
-function extractDefinitions(snippet: string): string {
-  const matches = snippet.matchAll(DEFINITION_BLOCK_RE);
+function extractLineCommentDefinitions(snippet: string, marker: string): [string, string] {
+  const lines = snippet.split("\n");
+  const defs: string[] = [];
 
-  return Array.from(matches)
-    .map((match) => {
-      const inner = match[0]
-        .replace(/^\/\*\*\s*\n/, "") // strip opening /**
-        .replace(/\s*\*\/\s*$/, ""); // strip closing */
+  for (let i = 0; i < lines.length; i++) {
+    if (lines[i].includes("Definition for")) {
+      defs.push(lines[i]);
+      lines[i] = "";
+      i++;
 
-      return inner
-        .split("\n")
-        .map((line, idx) =>
-          idx === 0 ? "// " + line.replace(/^\s*\* ?/, "") : line.replace(/^\s*\* ?/, ""),
-        )
-        .join("\n")
-        .trim();
-    })
-    .join("\n\n");
+      while (
+        i < lines.length &&
+        lines[i].startsWith(marker) &&
+        !lines[i].includes("Definition for")
+      ) {
+        defs.push(lines[i].slice(marker.length).replace(/^\s/, ""));
+        lines[i] = "";
+        i++;
+      }
+
+      i--;
+    }
+  }
+
+  return [defs.join("\n"), lines.filter(Boolean).join("\n")];
 }

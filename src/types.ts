@@ -1,5 +1,7 @@
 // ─── Problem List ────────────────────────────────────────────────────────────
 
+import { LANGUAGES } from "./constants";
+
 type Difficulty = "Easy" | "Medium" | "Hard";
 
 export interface RawQuestionItem {
@@ -79,16 +81,4 @@ export interface SubmissionResponse {
   submission_id: number;
 }
 
-export type Language =
-  | "python"
-  | "python3"
-  | "javascript"
-  | "typescript"
-  | "java"
-  | "cpp"
-  | "c"
-  | "csharp"
-  | "go"
-  | "rust"
-  | "kotlin"
-  | "swift";
+export type Language = (typeof LANGUAGES)[number];

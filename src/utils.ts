@@ -1,4 +1,5 @@
 import * as vscode from "vscode";
+import { Language } from "./types";
 
 export async function fileExistsAtUri(uri: vscode.Uri): Promise<boolean> {
   try {
@@ -13,8 +14,9 @@ export async function fileExistsAtPath(path: string): Promise<boolean> {
   return fileExistsAtUri(vscode.Uri.file(path));
 }
 
-export const FILE_EXTENSION_RECORD: Record<string, string> = {
+export const FILE_EXTENSION_RECORD: Record<Language, string> = {
   python: "py",
+  python3: "py",
   javascript: "js",
   typescript: "ts",
   java: "java",
@@ -29,7 +31,7 @@ export const FILE_EXTENSION_RECORD: Record<string, string> = {
 
 export const LANGUAGE_NAME_RECORD: Record<string, string> = {
   python: "Python",
-  python3: "Python",
+  python3: "Python 3",
   javascript: "Javascript",
   typescript: "Typescript",
   java: "Java",
@@ -42,17 +44,18 @@ export const LANGUAGE_NAME_RECORD: Record<string, string> = {
   swift: "Swift",
 };
 
-const COMMENT_PREFIX_BY_EXTENSION_RECORD: Record<string, string> = {
-  py: "#",
-  js: "//",
-  ts: "//",
+export const COMMENT_PREFIX_BY_EXTENSION_RECORD: Record<Language, string> = {
+  python: "#",
+  python3: "#",
+  javascript: "//",
+  typescript: "//",
   java: "//",
   cpp: "//",
   c: "//",
-  cs: "//",
+  csharp: "//",
   go: "//",
-  rs: "//",
-  kt: "//",
+  rust: "//",
+  kotlin: "//",
   swift: "//",
 };
 

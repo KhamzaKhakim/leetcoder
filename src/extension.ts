@@ -12,10 +12,10 @@ import {
   // setCursorLine,
 } from "./utils";
 import { handleUriSignIn, login } from "./login";
-import { createProblemWebview } from "./createProblemWebview";
 import { getUploadCode, upload } from "./upload";
 import * as path from "path";
 import { LeetCoderCodeLensProvider } from "./codelens";
+import { createProblemWebview } from "./webview";
 
 let STATE = { isFetching: false };
 
@@ -178,6 +178,9 @@ export function activate(context: vscode.ExtensionContext) {
       code,
       context,
     });
+
+    //show webview with loading the page.
+    //
 
     vscode.window.showInformationMessage("Submitted the code");
   });
