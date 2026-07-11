@@ -4,6 +4,11 @@ import { LANGUAGES } from "./constants";
 
 type Difficulty = "Easy" | "Medium" | "Hard";
 
+interface TopicTag {
+  name: string;
+  slug: string;
+}
+
 export interface RawQuestionItem {
   questionId: string;
   frontendQuestionId: string;
@@ -44,6 +49,8 @@ export interface RawQuestionDetail {
   questionTitle: string;
   content: string; // raw HTML
   difficulty: Difficulty;
+  titleSlug: string;
+  topicTags: TopicTag[];
   codeSnippets: CodeSnippet[];
 }
 
@@ -60,6 +67,8 @@ export interface ProblemDetail {
   title: string;
   contentHtml: string;
   difficulty: Difficulty;
+  titleSlug: string;
+  topicTags: TopicTag[];
   codeSnippets: CodeSnippet[];
 }
 

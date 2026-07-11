@@ -19,45 +19,59 @@ export function createProblemWebview(
     preserveFocus: true,
   });
   webviewRegistry.register(key, panel);
-  const onDiskPath = vscode.Uri.file(path.join(context.extensionPath, "src", "style.css"));
 
-  // 2. Convert the disk path to a special Webview URI
+  const onDiskPath = vscode.Uri.file(path.join(context.extensionPath, "src", "style.css"));
   const cssUri = panel.webview.asWebviewUri(onDiskPath);
+
+  const difficultyClass = detail.difficulty.toLowerCase();
+  const topicsHtml = detail.topicTags
+    .map((t) => `<span class="topic-tag">${t.name}</span>`)
+    .join("");
+
+  const url = `https://leetcode.com/problems/${detail.titleSlug}/`;
+
   let html = `
         <!DOCTYPE html>
         <html lang="en">
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Custom CSS Webview</title>
-            
-            <!-- 4. Link the webview-safe URI here -->
+            <title>${detail.title}</title>
             <link rel="stylesheet" type="text/css" href="${cssUri}">
         </head>
         <body>
+          <div class="problem-header">
+            <h1 class="problem-title">${detail.title}</h1>
+            <div class="problem-meta">
+              <span class="difficulty ${difficultyClass}">${detail.difficulty}</span>
+              <a class="leetcode-link" href="${url}" target="_blank" rel="noopener noreferrer">View on LeetCode ↗</a>
+            </div>
+            <div class="topics">${topicsHtml}</div>
+          </div>
+          <hr class="divider" />
       `;
+
   let content = detail.contentHtml;
-  // search for all examples
   let x = content.indexOf('<p><strong class="example">Example');
   while (x !== -1 && x) {
     // append everything before this example
     html += content.substring(0, x);
-    // remove added content
     content = content.slice(x);
-    // append start of div
+
+    // open the wrapper div
     html += '<div class="example-block">';
-    // find end of the examlple
-    x = content.indexOf("</pre>");
-    // add example
+
+    // find end of the example, INCLUDING the closing </pre> tag
+    x = content.indexOf("</pre>") + "</pre>".length;
     html += content.substring(0, x);
-    // add end of div
+
+    // close the div AFTER </pre> so nesting is valid
     html += "</div>";
-    // remove added content
     content = content.slice(x);
+
     // next example
     x = content.indexOf('<p><strong class="example">Example');
   }
-  // add everything else
   html += `${content}
         </body>
         </html>`;

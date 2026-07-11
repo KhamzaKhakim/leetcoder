@@ -80,6 +80,11 @@ const PROBLEM_DETAIL_QUERY = /* graphql */ `
       questionTitle
       content
       difficulty
+      titleSlug
+      topicTags {
+        name
+        slug
+      }
       codeSnippets {
         lang
         langSlug
@@ -114,7 +119,9 @@ function mapProblemDetail(raw: RawQuestionDetail): ProblemDetail {
     frontendId: parseInt(raw.questionFrontendId, 10),
     title: raw.questionTitle,
     difficulty: raw.difficulty,
+    topicTags: raw.topicTags,
     contentHtml: raw.content,
     codeSnippets: raw.codeSnippets,
+    titleSlug: raw.titleSlug,
   };
 }
