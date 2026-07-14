@@ -150,6 +150,8 @@ export function activate(context: vscode.ExtensionContext) {
     login();
   });
 
+  //TODO: add run command to text examples.
+
   const uploadCommandId = "leetcoder.upload";
 
   const uploadCommand = vscode.commands.registerCommand(uploadCommandId, async () => {
@@ -181,7 +183,7 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     //show webview with loading the page.
-    //
+    // fetch pollingly until get results
 
     vscode.window.showInformationMessage("Submitted the code");
   });
