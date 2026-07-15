@@ -15,7 +15,7 @@ import { handleUriSignIn, login } from "./login";
 import { getUploadCode, upload } from "./upload";
 import * as path from "path";
 import { LeetCoderCodeLensProvider } from "./codelens";
-import { createProblemWebview } from "./webview";
+import { createProblemWebview, createUploadWebview } from "./webview";
 import { webviewRegistry } from "./webviewRegistry";
 
 let STATE = { isFetching: false };
@@ -181,6 +181,8 @@ export function activate(context: vscode.ExtensionContext) {
       code,
       context,
     });
+
+    createUploadWebview(res.submission_id, problem, context);
 
     //show webview with loading the page.
     // fetch pollingly until get results

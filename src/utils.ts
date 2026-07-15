@@ -63,3 +63,22 @@ export function setCursorLine(editor: vscode.TextEditor, line: number, character
   const position = new vscode.Position(line, character);
   editor.selection = new vscode.Selection(position, position);
 }
+
+export async function getCookieAndCsrf(context: vscode.ExtensionContext) {
+  const cookie = await context.secrets.get("leetcode.cookie");
+  if (!cookie) {
+    throw new Error("Cookie not found");
+  }
+
+  const start = cookie.indexOf("csrftoken=");
+  if (start === -1) {
+    throw new Error("CSRF cookie not found");
+  }
+
+  const valueStart = start + "csrftoken=".length;
+  const end = cookie.indexOf(";", valueStart);
+
+  const csrfToken = end === -1 ? cookie.slice(valueStart) : cookie.slice(valueStart, end);
+
+  return { cookie, csrfToken };
+}

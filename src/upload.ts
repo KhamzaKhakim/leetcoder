@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 import { SubmissionResponse } from "./types";
+import { getCookieAndCsrf } from "./utils";
 
 export async function upload({
   titleSlug,
@@ -12,17 +13,13 @@ export async function upload({
   id: number;
   context: vscode.ExtensionContext;
 }) {
-  const cookie = await context.secrets.get("leetcode.cookie");
-
-  if (!cookie) {
-    throw new Error("Cookie not found"); //TODO: maybe force login
-  }
+  const { cookie, csrfToken } = await getCookieAndCsrf(context);
 
   const res = await fetch(`https://leetcode.com/problems/${titleSlug}/submit/`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "x-csrftoken": getCsrfToken(cookie),
+      "x-csrftoken": csrfToken,
       Referer: `https://leetcode.com/problems/${titleSlug}/`,
       Cookie: cookie,
     },
@@ -59,16 +56,4 @@ export function getUploadCode(code: string) {
     .slice(startIdx + 1, endIdx)
     .join("\n")
     .trim();
-}
-
-function getCsrfToken(cookieString: string) {
-  const start = cookieString.indexOf("csrftoken=");
-  if (start === -1) {
-    throw new Error("CSRF cookie not found");
-  }
-
-  const valueStart = start + "csrftoken=".length;
-  const end = cookieString.indexOf(";", valueStart);
-
-  return end === -1 ? cookieString.slice(valueStart) : cookieString.slice(valueStart, end);
 }
