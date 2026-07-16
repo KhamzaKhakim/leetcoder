@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Submission - {{title}}</title>
+    <link rel="stylesheet" type="text/css" href="{{cssUri}}" />
+  </head>
+  <body>
+    <div class="problem-header">
+      <h1 class="problem-title">{{title}}</h1>
+      <div class="problem-meta">
+        <span class="difficulty {{difficultyClass}}">{{difficulty}}</span>
+      </div>
+    </div>
+    <hr class="divider" />
+
+    <div id="status-banner" class="status-banner pending">
+      <span class="spinner"></span>
+      <span id="status-text">Judging your submission…</span>
+    </div>
+
+    <div id="stats" class="stats-grid hidden"></div>
+    <div id="io-section"></div>
+
+    <script src="{{jsUri}}"></script>
+  </body>
+</html>

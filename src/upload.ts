@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import { Language, SubmissionResponse } from "./types";
-import { getCookieAndCsrf } from "./utils";
+import { getConfig, getCookieAndCsrf } from "./utils";
 
 export async function upload({
   titleSlug,
@@ -14,13 +14,8 @@ export async function upload({
   context: vscode.ExtensionContext;
 }) {
   const { cookie, csrfToken } = await getCookieAndCsrf(context);
-  const config = vscode.workspace.getConfiguration("leetcoder");
 
-  const language = config.get<string>("language") as Language;
-
-  if (!language) {
-    throw new Error("Language config is empty");
-  }
+  const { language } = getConfig();
 
   const res = await fetch(`https://leetcode.com/problems/${titleSlug}/submit/`, {
     method: "POST",

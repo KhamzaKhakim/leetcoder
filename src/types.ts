@@ -91,3 +91,22 @@ export interface SubmissionResponse {
 }
 
 export type Language = (typeof LANGUAGES)[number];
+
+//upload
+
+export interface SubmissionCheckResponse {
+  state: "PENDING" | "STARTED" | "SUCCESS" | string;
+  status_msg?: string;
+  status_runtime?: string;
+  status_memory?: string;
+  runtime_percentile?: number | null;
+  memory_percentile?: number | null;
+  total_correct?: number;
+  total_testcases?: number;
+  compile_error?: string;
+  full_compile_error?: string;
+  last_testcase?: string;
+  expected_output?: string | string[];
+  code_output?: string | string[];
+  std_output?: string | string[];
+}

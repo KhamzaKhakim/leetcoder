@@ -8,6 +8,7 @@ import { existsSync } from "fs";
 import {
   FILE_EXTENSION_RECORD,
   fileExistsAtUri,
+  getConfig,
   LANGUAGE_NAME_RECORD,
   // setCursorLine,
 } from "./utils";
@@ -76,18 +77,7 @@ export function activate(context: vscode.ExtensionContext) {
       const { titleSlug } = selected.problem;
       const detail = await fetchProblemDetail(titleSlug);
 
-      const config = vscode.workspace.getConfiguration("leetcoder");
-
-      const language = config.get<string>("language") as Language;
-      const path = config.get<string>("path");
-
-      if (!language) {
-        throw new Error("Language config is empty");
-      }
-
-      if (path === undefined) {
-        throw new Error("Path config is empty");
-      }
+      const { language, path } = getConfig();
 
       const uri = vscode.Uri.joinPath(
         vscode.workspace.workspaceFolders![0].uri,

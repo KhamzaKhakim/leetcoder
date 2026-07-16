@@ -82,3 +82,25 @@ export async function getCookieAndCsrf(context: vscode.ExtensionContext) {
 
   return { cookie, csrfToken };
 }
+
+export function getConfig() {
+  const config = vscode.workspace.getConfiguration("leetcoder");
+
+  const language = config.get<string>("language") as Language;
+
+  if (!language) {
+    throw new Error("Language config is empty");
+  }
+
+  const path = config.get<string>("path");
+
+  if (path === undefined) {
+    throw new Error("Path config is empty");
+  }
+
+  return { language, path };
+}
+
+export function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
