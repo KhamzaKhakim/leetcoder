@@ -52,11 +52,20 @@ export async function getProblemList(
   return allProblems;
 }
 
-export async function getProblemListUpload(context: vscode.ExtensionContext): Promise<Problem[]> {
+export async function getProblem(
+  fileName: string,
+  context: vscode.ExtensionContext,
+): Promise<Problem> {
   const cacheFile = vscode.Uri.joinPath(context.globalStorageUri, FILE_NAME);
 
   const raw = await vscode.workspace.fs.readFile(cacheFile);
   const cached: ProblemCache = JSON.parse(new TextDecoder().decode(raw));
-  // if (Date.now() - cached.fetchedAt < CACHE_TTL_MS) {
-  return cached.problems;
+
+  const problem = cached.problems.find((p) => p.titleSlug === fileName);
+
+  if (!problem) {
+    throw new Error(`Problem with name ${fileName} was not found in cache`);
+  }
+
+  return problem;
 }

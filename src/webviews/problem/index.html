@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{title}}</title>
+    <link rel="stylesheet" type="text/css" href="{{cssUri}}" />
+  </head>
+  <body>
+    <div class="problem-header">
+      <h1 class="problem-title">{{title}}</h1>
+      <div class="problem-meta">
+        <span class="difficulty {{difficultyClass}}">{{difficulty}}</span>
+        <a class="leetcode-link" href="{{url}}" target="_blank" rel="noopener noreferrer"
+          >View on LeetCode ↗</a
+        >
+      </div>
+      <div class="topics">{{topicsHtml}}</div>
+    </div>
+    <hr class="divider" />
+    {{content}}
+  </body>
+</html>

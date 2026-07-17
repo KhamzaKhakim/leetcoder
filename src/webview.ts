@@ -23,62 +23,61 @@ export function createProblemWebview(
   webviewRegistry.register(key, panel);
 
   const onDiskPath = vscode.Uri.file(path.join(context.extensionPath, "src", "style.css"));
-  const cssUri = panel.webview.asWebviewUri(onDiskPath);
 
-  const difficultyClass = detail.difficulty.toLowerCase();
-  const topicsHtml = detail.topicTags
+  panel.webview.html = getProblemHtml(detail, panel, context);
+
+  return panel;
+}
+
+function getProblemHtml(
+  problem: ProblemDetail,
+  panel: vscode.WebviewPanel,
+  context: vscode.ExtensionContext,
+): string {
+  const url = `https://leetcode.com/problems/${problem.titleSlug}/`;
+  const difficultyClass = problem.difficulty.toLowerCase();
+  const topicsHtml = problem.topicTags
     .map((t) => `<span class="topic-tag">${t.name}</span>`)
     .join("");
 
-  const url = `https://leetcode.com/problems/${detail.titleSlug}/`;
+  //getting content of examples and so on
+  let contentHtml = problem.contentHtml;
+  let content = "";
 
-  let html = `
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>${detail.title}</title>
-            <link rel="stylesheet" type="text/css" href="${cssUri}">
-        </head>
-        <body>
-          <div class="problem-header">
-            <h1 class="problem-title">${detail.title}</h1>
-            <div class="problem-meta">
-              <span class="difficulty ${difficultyClass}">${detail.difficulty}</span>
-              <a class="leetcode-link" href="${url}" target="_blank" rel="noopener noreferrer">View on LeetCode ↗</a>
-            </div>
-            <div class="topics">${topicsHtml}</div>
-          </div>
-          <hr class="divider" />
-      `;
-
-  let content = detail.contentHtml;
-  let x = content.indexOf('<p><strong class="example">Example');
+  let x = contentHtml.indexOf('<p><strong class="example">Example');
   while (x !== -1 && x) {
     // append everything before this example
-    html += content.substring(0, x);
-    content = content.slice(x);
+    content += contentHtml.substring(0, x);
+    contentHtml = contentHtml.slice(x);
 
     // open the wrapper div
-    html += '<div class="example-block">';
+    content += '<div class="example-block">';
 
     // find end of the example, INCLUDING the closing </pre> tag
-    x = content.indexOf("</pre>") + "</pre>".length;
-    html += content.substring(0, x);
+    x = contentHtml.indexOf("</pre>") + "</pre>".length;
+    content += contentHtml.substring(0, x);
 
     // close the div AFTER </pre> so nesting is valid
-    html += "</div>";
-    content = content.slice(x);
+    content += "</div>";
+    contentHtml = contentHtml.slice(x);
 
     // next example
-    x = content.indexOf('<p><strong class="example">Example');
+    x = contentHtml.indexOf('<p><strong class="example">Example');
   }
-  html += `${content}
-        </body>
-        </html>`;
-  panel.webview.html = html;
-  return panel;
+
+  const cssPath = vscode.Uri.file(path.join(context.extensionPath, "src", "style.css"));
+
+  const templatePath = path.join(context.extensionPath, "src", "webviews", "problem", "index.html");
+
+  return renderTemplate(templatePath, {
+    title: problem.title,
+    cssUri: panel.webview.asWebviewUri(cssPath).toString(),
+    difficulty: problem.difficulty,
+    difficultyClass: problem.difficulty.toLowerCase(),
+    url: `https://leetcode.com/problems/${problem.titleSlug}/`,
+    content,
+    topicsHtml,
+  });
 }
 
 export function createUploadWebview(
@@ -191,8 +190,8 @@ function getUploadHtml(
   panel: vscode.WebviewPanel,
   context: vscode.ExtensionContext,
 ): string {
-  const submissionCssPath = vscode.Uri.file(path.join(context.extensionPath, "src", "style.css"));
-  const submissionJsPath = vscode.Uri.file(
+  const cssPath = vscode.Uri.file(path.join(context.extensionPath, "src", "style.css"));
+  const jsPath = vscode.Uri.file(
     path.join(context.extensionPath, "src", "webviews", "submission", "index.js"),
   );
 
@@ -204,12 +203,10 @@ function getUploadHtml(
     "index.html",
   );
 
-  console.log("Dif: ", problem.difficulty.toLowerCase());
-
   return renderTemplate(templatePath, {
     title: problem.title,
-    cssUri: panel.webview.asWebviewUri(submissionCssPath).toString(),
-    jsUri: panel.webview.asWebviewUri(submissionJsPath).toString(),
+    cssUri: panel.webview.asWebviewUri(cssPath).toString(),
+    jsUri: panel.webview.asWebviewUri(jsPath).toString(),
     difficultyClass: problem.difficulty.toLowerCase(),
     difficulty: problem.difficulty,
   });

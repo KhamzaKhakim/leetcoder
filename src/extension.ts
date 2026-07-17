@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import { Language, Problem } from "./types";
 import { formatCode } from "./formatCode";
-import { getProblemList, getProblemListUpload } from "./storage";
+import { getProblem, getProblemList } from "./storage";
 import { fetchProblemDetail } from "./fetcher";
 import { FILE_NAME } from "./constants";
 import { existsSync } from "fs";
@@ -145,9 +145,8 @@ export function activate(context: vscode.ExtensionContext) {
   const uploadCommandId = "leetcoder.upload";
 
   const uploadCommand = vscode.commands.registerCommand(uploadCommandId, async () => {
-    const response = await getProblemListUpload(context);
-
     const editor = vscode.window.activeTextEditor;
+
     if (!editor) {
       vscode.window.showErrorMessage("No active file open.");
       return;
@@ -156,10 +155,13 @@ export function activate(context: vscode.ExtensionContext) {
     const filePath = editor.document.fileName;
     const fileNameNoExt = path.parse(filePath).name;
 
-    const problem = response.find((p) => p.titleSlug === fileNameNoExt);
+    let problem: Problem;
 
-    if (!problem) {
-      vscode.window.showErrorMessage("Could not match this file to a LeetCode problem.");
+    try {
+      problem = await getProblem(fileNameNoExt, context);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      vscode.window.showErrorMessage(message);
       return;
     }
 
@@ -173,9 +175,6 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     createUploadWebview(res.submission_id, problem, context);
-
-    //show webview with loading the page.
-    // fetch pollingly until get results
 
     vscode.window.showInformationMessage("Submitted the code");
   });
