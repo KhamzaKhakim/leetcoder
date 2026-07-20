@@ -7,6 +7,7 @@ export function login() {
   );
 }
 
+//TODO: fix when cookie gets outdated
 export async function handleUriSignIn(
   uri: vscode.Uri,
   context: vscode.ExtensionContext,

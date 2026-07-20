@@ -5,7 +5,7 @@ import { FILE_NAME } from "./constants";
 
 // const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 
-//TODO: implement caching logic;
+//TODO: implement caching logic
 //TODO: when i close and open quickpick again two seperate fetching begins
 export async function getProblemList(
   context: vscode.ExtensionContext,

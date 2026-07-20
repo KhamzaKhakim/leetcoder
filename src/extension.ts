@@ -175,6 +175,9 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     createUploadWebview(res.submission_id, problem, context);
+    //TODO: if it is accepted show the tick for fileName.
+    //TODO: if there is an error in some case make a button to put the case in the code as in examples.
+    // Probably should skip it if it is because inefficient code and case is too big.
 
     vscode.window.showInformationMessage("Submitted the code");
   });

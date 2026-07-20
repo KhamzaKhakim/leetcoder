@@ -83,6 +83,7 @@ export async function getCookieAndCsrf(context: vscode.ExtensionContext) {
   return { cookie, csrfToken };
 }
 
+//TODO: add new config to set task description side. For now it is right, whereas in leetcode it is on the left. I want to make it selectable
 export function getConfig() {
   const config = vscode.workspace.getConfiguration("leetcoder");
 

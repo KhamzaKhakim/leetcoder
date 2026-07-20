@@ -23,6 +23,7 @@ export function formatCode(
     cursor = 3;
   }
 
+  //TODO: add examples with logs. Each language has different implementation
   return { code: formattedCode, cursor };
 }
 
