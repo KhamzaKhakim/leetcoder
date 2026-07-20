@@ -10,7 +10,7 @@ import {
   fileExistsAtUri,
   getConfig,
   LANGUAGE_NAME_RECORD,
-  // setCursorLine,
+  setCursorLine,
 } from "./utils";
 import { handleUriSignIn, login } from "./login";
 import { getUploadCode, upload } from "./upload";
@@ -95,12 +95,10 @@ export function activate(context: vscode.ExtensionContext) {
       }
 
       const formattedObj = formatCode(snippet, language);
-      const editor = vscode.window.activeTextEditor!;
+      let editor: vscode.TextEditor;
 
       if (await fileExistsAtUri(uri)) {
-        await vscode.window.showTextDocument(uri, {
-          viewColumn: 1,
-        });
+        editor = await vscode.window.showTextDocument(uri, { viewColumn: 1 });
 
         const isEmpty = editor.document.getText().trim() === "";
 
@@ -115,7 +113,7 @@ export function activate(context: vscode.ExtensionContext) {
           }
         }
 
-        editor.edit((editBuilder) => {
+        await editor.edit((editBuilder) => {
           const fullRange = new vscode.Range(
             new vscode.Position(0, 0),
             editor.document.lineAt(editor.document.lineCount - 1).range.end,
@@ -125,13 +123,11 @@ export function activate(context: vscode.ExtensionContext) {
       } else {
         const encoder = new TextEncoder();
         await vscode.workspace.fs.writeFile(uri, encoder.encode(formattedObj.code));
-        await vscode.window.showTextDocument(uri, {
-          viewColumn: 1,
-        });
+        editor = await vscode.window.showTextDocument(uri, { viewColumn: 1 });
       }
 
-      //set cursor
-      // setCursorLine(editor, formattedObj.cursor);
+      //TODO: fix cursor later, low priority for now
+      // await setCursorLine(editor, 2);
       createProblemWebview(detail, context, uri.toString());
     });
   });

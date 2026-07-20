@@ -59,9 +59,17 @@ export const COMMENT_PREFIX_BY_EXTENSION_RECORD: Record<Language, string> = {
   swift: "//",
 };
 
-export function setCursorLine(editor: vscode.TextEditor, line: number, character = 0) {
-  const position = new vscode.Position(line, character);
+export async function setCursorLine(editor: vscode.TextEditor, line: number) {
+  const { insertSpaces, tabSize } = editor.options;
+  const indent = insertSpaces ? " ".repeat(Number(tabSize)) : "\t";
+
+  await editor.edit((editBuilder) => {
+    editBuilder.insert(new vscode.Position(line, 0), indent);
+  });
+
+  const position = new vscode.Position(line, indent.length);
   editor.selection = new vscode.Selection(position, position);
+  editor.revealRange(new vscode.Range(position, position));
 }
 
 export async function getCookieAndCsrf(context: vscode.ExtensionContext) {

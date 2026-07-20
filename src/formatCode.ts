@@ -8,22 +8,25 @@ export function formatCode(
   code: string;
   cursor: number;
 } {
-  let formattedCode = "";
-  let cursor = 0;
   const comment = COMMENT_PREFIX_BY_EXTENSION_RECORD[language];
-  if (hasDefinition(snippet)) {
-    const [def, code] = extractDefinitionsAndCode(snippet, language);
-    const lineCount = def.split("\n").length + 1;
-    formattedCode =
-      def + `\n\n${comment} @leetcode:start\n` + code + `\n${comment} @leetcode:end\n`;
+  const startMarker = `${comment} @leetcode:start`;
+  const endMarker = `${comment} @leetcode:end`;
 
-    cursor = lineCount + 4;
+  let prefix: string;
+  let code: string;
+
+  if (hasDefinition(snippet)) {
+    const [def, defCode] = extractDefinitionsAndCode(snippet, language);
+    prefix = `${def}\n\n${startMarker}\n`;
+    code = defCode;
   } else {
-    formattedCode = `${comment} @leetcode:start\n` + snippet + `\n${comment} @leetcode:end\n`;
-    cursor = 3;
+    prefix = `${startMarker}\n`;
+    code = snippet;
   }
 
-  //TODO: add examples with logs. Each language has different implementation
+  const formattedCode = `${prefix}${code}\n${endMarker}\n`;
+  const cursor = prefix.split("\n").length - 1;
+
   return { code: formattedCode, cursor };
 }
 
