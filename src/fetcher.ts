@@ -81,6 +81,7 @@ const PROBLEM_DETAIL_QUERY = /* graphql */ `
       content
       difficulty
       titleSlug
+      exampleTestcaseList
       topicTags {
         name
         slug
@@ -121,6 +122,7 @@ function mapProblemDetail(raw: RawQuestionDetail): ProblemDetail {
     difficulty: raw.difficulty,
     topicTags: raw.topicTags,
     contentHtml: raw.content,
+    exampleTestcaseList: raw.exampleTestcaseList,
     codeSnippets: raw.codeSnippets,
     titleSlug: raw.titleSlug,
   };

@@ -51,6 +51,7 @@ export interface RawQuestionDetail {
   difficulty: Difficulty;
   titleSlug: string;
   topicTags: TopicTag[];
+  exampleTestcaseList: string[]; //TODO find better type
   codeSnippets: CodeSnippet[];
 }
 
@@ -69,6 +70,7 @@ export interface ProblemDetail {
   difficulty: Difficulty;
   titleSlug: string;
   topicTags: TopicTag[];
+  exampleTestcaseList: string[];
   codeSnippets: CodeSnippet[];
 }
 
