@@ -29,7 +29,7 @@ export const FILE_EXTENSION_RECORD: Record<Language, string> = {
   swift: "swift",
 };
 
-export const LANGUAGE_NAME_RECORD: Record<string, string> = {
+export const LANGUAGE_NAME_RECORD: Record<Language, string> = {
   python: "Python",
   python3: "Python 3",
   javascript: "Javascript",

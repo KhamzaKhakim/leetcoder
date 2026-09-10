@@ -38,6 +38,7 @@ export class LeetCoderCodeLensProvider implements vscode.CodeLensProvider {
         }
       }
     }
+
     return lenses;
   }
 }
