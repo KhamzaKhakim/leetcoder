@@ -5,15 +5,11 @@ import { getProblem, getProblemList } from "./storage";
 import { fetchProblemDetail } from "./fetcher";
 import { FILE_NAME } from "./constants";
 import { existsSync } from "fs";
-import {
-  FILE_EXTENSION_RECORD,
-  fileExistsAtUri,
-  getConfig,
-  LANGUAGE_NAME_RECORD,
-  setCursorLine,
-} from "./utils";
+import { fileExistsAtUri, getConfig } from "./utils";
+import { FILE_EXTENSION_RECORD, LANGUAGE_NAME_RECORD } from "./languages";
 import { handleUriSignIn, login } from "./login";
-import { getUploadCode, upload } from "./upload";
+import { upload } from "./upload";
+import { getUploadCode } from "./markers";
 import * as path from "path";
 import { LeetCoderCodeLensProvider } from "./codelens";
 import { createProblemWebview, createUploadWebview } from "./webview";

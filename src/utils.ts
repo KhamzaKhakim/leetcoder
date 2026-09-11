@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import { Language } from "./types";
 import { LANGUAGES } from "./constants";
+import { extractCsrfToken } from "./cookie";
 
 export async function fileExistsAtUri(uri: vscode.Uri): Promise<boolean> {
   try {
@@ -14,51 +15,6 @@ export async function fileExistsAtUri(uri: vscode.Uri): Promise<boolean> {
 export async function fileExistsAtPath(path: string): Promise<boolean> {
   return fileExistsAtUri(vscode.Uri.file(path));
 }
-
-export const FILE_EXTENSION_RECORD: Record<Language, string> = {
-  // python: "py",
-  // python3: "py",
-  javascript: "js",
-  typescript: "ts",
-  // java: "java",
-  // cpp: "cpp",
-  // c: "c",
-  // csharp: "cs",
-  // go: "go",
-  // rust: "rs",
-  // kotlin: "kt",
-  // swift: "swift",
-};
-
-export const LANGUAGE_NAME_RECORD: Record<Language, string> = {
-  // python: "Python",
-  // python3: "Python 3",
-  javascript: "JavaScript",
-  typescript: "TypeScript",
-  // java: "Java",
-  // cpp: "C++",
-  // c: "C",
-  // csharp: "C#",
-  // go: "GO",
-  // rust: "Rust",
-  // kotlin: "Kotlin",
-  // swift: "Swift",
-};
-
-export const COMMENT_PREFIX_BY_EXTENSION_RECORD: Record<Language, string> = {
-  // python: "#",
-  // python3: "#",
-  javascript: "//",
-  typescript: "//",
-  // java: "//",
-  // cpp: "//",
-  // c: "//",
-  // csharp: "//",
-  // go: "//",
-  // rust: "//",
-  // kotlin: "//",
-  // swift: "//",
-};
 
 export async function setCursorLine(editor: vscode.TextEditor, line: number) {
   const { insertSpaces, tabSize } = editor.options;
@@ -79,17 +35,7 @@ export async function getCookieAndCsrf(context: vscode.ExtensionContext) {
     throw new Error("Cookie not found");
   }
 
-  const start = cookie.indexOf("csrftoken=");
-  if (start === -1) {
-    throw new Error("CSRF cookie not found");
-  }
-
-  const valueStart = start + "csrftoken=".length;
-  const end = cookie.indexOf(";", valueStart);
-
-  const csrfToken = end === -1 ? cookie.slice(valueStart) : cookie.slice(valueStart, end);
-
-  return { cookie, csrfToken };
+  return { cookie, csrfToken: extractCsrfToken(cookie) };
 }
 
 //TODO: add new config to set task description side. For now it is right, whereas in leetcode it is on the left. I want to make it selectable

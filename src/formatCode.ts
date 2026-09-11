@@ -1,5 +1,5 @@
 import { Language } from "./types";
-import { COMMENT_PREFIX_BY_EXTENSION_RECORD } from "./utils";
+import { COMMENT_PREFIX_BY_EXTENSION_RECORD } from "./languages";
 
 export function formatCode(
   snippet: string,

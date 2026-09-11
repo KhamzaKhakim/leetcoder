@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { Language, SubmissionResponse } from "./types";
+import { SubmissionResponse } from "./types";
 import { getConfig, getCookieAndCsrf } from "./utils";
 
 export async function upload({
@@ -40,22 +40,4 @@ export async function upload({
   const json = (await res.json()) as SubmissionResponse;
 
   return json;
-}
-
-export function getUploadCode(code: string) {
-  const startMarker = /\/\/\s*@leetcode:start/;
-  const endMarker = /\/\/\s*@leetcode:end/;
-
-  const lines = code.split("\n");
-  const startIdx = lines.findIndex((line) => startMarker.test(line));
-  const endIdx = lines.findIndex((line) => endMarker.test(line));
-
-  if (startIdx === -1 || endIdx === -1 || endIdx <= startIdx) {
-    return "";
-  }
-
-  return lines
-    .slice(startIdx + 1, endIdx)
-    .join("\n")
-    .trim();
 }
