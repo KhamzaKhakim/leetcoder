@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 import { Language } from "./types";
+import { LANGUAGES } from "./constants";
 
 export async function fileExistsAtUri(uri: vscode.Uri): Promise<boolean> {
   try {
@@ -15,48 +16,48 @@ export async function fileExistsAtPath(path: string): Promise<boolean> {
 }
 
 export const FILE_EXTENSION_RECORD: Record<Language, string> = {
-  python: "py",
-  python3: "py",
+  // python: "py",
+  // python3: "py",
   javascript: "js",
   typescript: "ts",
-  java: "java",
-  cpp: "cpp",
-  c: "c",
-  csharp: "cs",
-  go: "go",
-  rust: "rs",
-  kotlin: "kt",
-  swift: "swift",
+  // java: "java",
+  // cpp: "cpp",
+  // c: "c",
+  // csharp: "cs",
+  // go: "go",
+  // rust: "rs",
+  // kotlin: "kt",
+  // swift: "swift",
 };
 
 export const LANGUAGE_NAME_RECORD: Record<Language, string> = {
-  python: "Python",
-  python3: "Python 3",
-  javascript: "Javascript",
-  typescript: "Typescript",
-  java: "Java",
-  cpp: "C++",
-  c: "C",
-  csharp: "C#",
-  go: "GO",
-  rust: "Rust",
-  kotlin: "Kotlin",
-  swift: "Swift",
+  // python: "Python",
+  // python3: "Python 3",
+  javascript: "JavaScript",
+  typescript: "TypeScript",
+  // java: "Java",
+  // cpp: "C++",
+  // c: "C",
+  // csharp: "C#",
+  // go: "GO",
+  // rust: "Rust",
+  // kotlin: "Kotlin",
+  // swift: "Swift",
 };
 
 export const COMMENT_PREFIX_BY_EXTENSION_RECORD: Record<Language, string> = {
-  python: "#",
-  python3: "#",
+  // python: "#",
+  // python3: "#",
   javascript: "//",
   typescript: "//",
-  java: "//",
-  cpp: "//",
-  c: "//",
-  csharp: "//",
-  go: "//",
-  rust: "//",
-  kotlin: "//",
-  swift: "//",
+  // java: "//",
+  // cpp: "//",
+  // c: "//",
+  // csharp: "//",
+  // go: "//",
+  // rust: "//",
+  // kotlin: "//",
+  // swift: "//",
 };
 
 export async function setCursorLine(editor: vscode.TextEditor, line: number) {
@@ -95,10 +96,16 @@ export async function getCookieAndCsrf(context: vscode.ExtensionContext) {
 export function getConfig() {
   const config = vscode.workspace.getConfiguration("leetcoder");
 
-  const language = config.get<string>("language") as Language;
+  const language = config.get<string>("language");
 
   if (!language) {
     throw new Error("Language config is empty");
+  }
+
+  if (!(LANGUAGES as readonly string[]).includes(language)) {
+    throw new Error(
+      `Language "${language}" is not supported yet. Supported: ${LANGUAGES.join(", ")}`,
+    );
   }
 
   const path = config.get<string>("path");
@@ -107,7 +114,7 @@ export function getConfig() {
     throw new Error("Path config is empty");
   }
 
-  return { language, path };
+  return { language: language as Language, path };
 }
 
 export function sleep(ms: number) {

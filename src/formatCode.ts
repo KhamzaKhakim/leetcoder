@@ -37,11 +37,12 @@ function hasDefinition(snippet: string): boolean {
 }
 
 function extractDefinitionsAndCode(snippet: string, language: Language): [string, string] {
-  if (language === "python" || language === "python3") {
-    return extractLineCommentDefinitions(snippet, "#");
-  } else if (language === "rust") {
-    return extractLineCommentDefinitions(snippet, "//");
-  }
+  // Line-comment definition extraction, needed once these languages are re-enabled:
+  // if (language === "python" || language === "python3") {
+  //   return extractLineCommentDefinitions(snippet, "#");
+  // } else if (language === "rust") {
+  //   return extractLineCommentDefinitions(snippet, "//");
+  // }
 
   const matches = snippet.matchAll(DEFINITION_BLOCK_RE);
   return [

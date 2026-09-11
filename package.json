@@ -47,36 +47,16 @@
       "properties": {
         "leetcoder.language": {
           "type": "string",
-          "default": "python",
+          "default": "typescript",
           "enum": [
-            "python",
-            "python3",
-            "javascript",
             "typescript",
-            "java",
-            "cpp",
-            "c",
-            "csharp",
-            "go",
-            "rust",
-            "kotlin",
-            "swift"
+            "javascript"
           ],
           "enumDescriptions": [
-            "Python",
-            "Python 3",
-            "JavaScript",
             "TypeScript",
-            "Java",
-            "C++",
-            "C",
-            "C#",
-            "Go",
-            "Rust",
-            "Kotlin",
-            "Swift"
+            "JavaScript"
           ],
-          "description": "Programming language to use for solving LeetCode problems"
+          "description": "Programming language to use for solving LeetCode problems (only TypeScript and JavaScript are supported for now)"
         },
         "leetcoder.path": {
           "type": "string",

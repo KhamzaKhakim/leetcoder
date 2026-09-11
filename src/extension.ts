@@ -182,18 +182,19 @@ export function activate(context: vscode.ExtensionContext) {
     const config = vscode.workspace.getConfiguration("leetcoder");
     const current = config.get<string>("language");
 
+    // Only TypeScript and JavaScript are supported for now; see LANGUAGES in constants.ts
     const languages: { label: string; value: Language }[] = [
-      { label: "Python 3", value: "python" },
-      { label: "JavaScript", value: "javascript" },
       { label: "TypeScript", value: "typescript" },
-      { label: "Java", value: "java" },
-      { label: "C++", value: "cpp" },
-      { label: "C", value: "c" },
-      { label: "C#", value: "csharp" },
-      { label: "Go", value: "go" },
-      { label: "Rust", value: "rust" },
-      { label: "Kotlin", value: "kotlin" },
-      { label: "Swift", value: "swift" },
+      { label: "JavaScript", value: "javascript" },
+      // { label: "Python 3", value: "python3" },
+      // { label: "Java", value: "java" },
+      // { label: "C++", value: "cpp" },
+      // { label: "C", value: "c" },
+      // { label: "C#", value: "csharp" },
+      // { label: "Go", value: "go" },
+      // { label: "Rust", value: "rust" },
+      // { label: "Kotlin", value: "kotlin" },
+      // { label: "Swift", value: "swift" },
     ];
 
     const items = languages.map((l) => ({
