@@ -10,35 +10,40 @@ export class LeetCoderCodeLensProvider implements vscode.CodeLensProvider {
   ) {}
 
   provideCodeLenses(document: vscode.TextDocument): vscode.CodeLens[] {
-    const lenses: vscode.CodeLens[] = [];
-    const key = document.uri.toString();
+    const markerLine = this.findLeetcodeEndLine(document);
+    if (markerLine === -1) {
+      return [];
+    }
 
-    for (let i = 0; i < document.lineCount; i++) {
-      const line = document.lineAt(i);
-      if (line.text.includes("// @leetcode:end")) {
-        const range = new vscode.Range(i + 1, 0, i + 1, 0);
+    const range = new vscode.Range(markerLine + 1, 0, markerLine + 1, 0);
+    const panel = webviewRegistry.get(document.uri.toString());
 
-        lenses.push(
-          new vscode.CodeLens(range, {
-            title: "Upload to LeetCode",
-            command: this.commandId,
-          }),
-        );
+    const lenses: vscode.CodeLens[] = [
+      new vscode.CodeLens(range, {
+        title: "Upload to LeetCode",
+        command: this.commandId,
+      }),
+    ];
 
-        const panel = webviewRegistry.get(key);
-
-        if (!panel || !panel.visible) {
-          lenses.push(
-            new vscode.CodeLens(range, {
-              title: panel ? "Focus task description" : "Open task description",
-              command: this.openDescriptionCommandId,
-              arguments: [document],
-            }),
-          );
-        }
-      }
+    if (!panel || !panel.visible) {
+      lenses.push(
+        new vscode.CodeLens(range, {
+          title: panel ? "Focus task description" : "Open task description",
+          command: this.openDescriptionCommandId,
+          arguments: [document],
+        }),
+      );
     }
 
     return lenses;
+  }
+
+  private findLeetcodeEndLine(document: vscode.TextDocument): number {
+    for (let i = 0; i < document.lineCount; i++) {
+      if (document.lineAt(i).text.includes("// @leetcode:end")) {
+        return i;
+      }
+    }
+    return -1;
   }
 }
