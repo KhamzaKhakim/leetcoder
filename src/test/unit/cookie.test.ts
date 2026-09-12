@@ -1,5 +1,5 @@
 import * as assert from "assert";
-import { extractCsrfToken } from "../../cookie";
+import { extractCsrfToken } from "../../utils";
 
 suite("extractCsrfToken", () => {
   test("reads the token when it is the first cookie", () => {

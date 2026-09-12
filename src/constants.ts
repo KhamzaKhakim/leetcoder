@@ -17,3 +17,5 @@ export const LANGUAGES = [
   // "kotlin",
   // "swift",
 ] as const;
+
+export type Language = (typeof LANGUAGES)[number];

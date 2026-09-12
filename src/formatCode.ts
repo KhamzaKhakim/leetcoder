@@ -1,13 +1,7 @@
 import { Language } from "./types";
 import { COMMENT_PREFIX_BY_EXTENSION_RECORD } from "./languages";
 
-export function formatCode(
-  snippet: string,
-  language: Language,
-): {
-  code: string;
-  cursor: number;
-} {
+export function formatCode(snippet: string, language: Language) {
   const comment = COMMENT_PREFIX_BY_EXTENSION_RECORD[language];
   const startMarker = `${comment} @leetcode:start`;
   const endMarker = `${comment} @leetcode:end`;
@@ -17,17 +11,14 @@ export function formatCode(
 
   if (hasDefinition(snippet)) {
     const [def, defCode] = extractDefinitionsAndCode(snippet, language);
-    prefix = `${def}\n\n${startMarker}\n`;
+    prefix = `${def}\n\n${startMarker}`;
     code = defCode;
   } else {
-    prefix = `${startMarker}\n`;
+    prefix = `${startMarker}`;
     code = snippet;
   }
 
-  const formattedCode = `${prefix}${code}\n${endMarker}\n`;
-  const cursor = prefix.split("\n").length - 1;
-
-  return { code: formattedCode, cursor };
+  return `${prefix}\n${code}\n${endMarker}\n`;
 }
 
 const DEFINITION_BLOCK_RE = /\/\*\*\s*\n\s*\*\s*Definition for[\s\S]*?\*\/\n?/g;

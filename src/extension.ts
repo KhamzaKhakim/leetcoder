@@ -5,7 +5,7 @@ import { getProblem, getProblemList } from "./storage";
 import { fetchProblemDetail } from "./fetcher";
 import { FILE_NAME } from "./constants";
 import { existsSync } from "fs";
-import { fileExistsAtUri, getConfig } from "./utils";
+import { fileExistsAtUri, getConfig, setCursorLine } from "./utils";
 import { FILE_EXTENSION_RECORD, LANGUAGE_NAME_RECORD } from "./languages";
 import { handleUriSignIn, login } from "./login";
 import { upload } from "./upload";
@@ -69,9 +69,9 @@ export function activate(context: vscode.ExtensionContext) {
       if (!selected) {
         return;
       }
+      let editor: vscode.TextEditor;
 
       const { titleSlug } = selected.problem;
-      const detail = await fetchProblemDetail(titleSlug);
 
       const { language, path } = getConfig();
 
@@ -80,18 +80,6 @@ export function activate(context: vscode.ExtensionContext) {
         path,
         `${titleSlug}.${FILE_EXTENSION_RECORD[language]}`,
       );
-
-      const snippet = detail.codeSnippets?.find((c) => c.langSlug === language)?.code;
-
-      if (!snippet) {
-        vscode.window.showWarningMessage(
-          `No ${LANGUAGE_NAME_RECORD[language]} snippet found for this problem.`,
-        );
-        return;
-      }
-
-      const formattedObj = formatCode(snippet, language);
-      let editor: vscode.TextEditor;
 
       if (await fileExistsAtUri(uri)) {
         editor = await vscode.window.showTextDocument(uri, { viewColumn: 1 });
@@ -104,26 +92,31 @@ export function activate(context: vscode.ExtensionContext) {
             "Reset",
             "Cancel",
           );
+
           if (answer === "Cancel") {
             return;
           }
         }
-
-        await editor.edit((editBuilder) => {
-          const fullRange = new vscode.Range(
-            new vscode.Position(0, 0),
-            editor.document.lineAt(editor.document.lineCount - 1).range.end,
-          );
-          editBuilder.replace(fullRange, formattedObj.code);
-        });
-      } else {
-        const encoder = new TextEncoder();
-        await vscode.workspace.fs.writeFile(uri, encoder.encode(formattedObj.code));
-        editor = await vscode.window.showTextDocument(uri, { viewColumn: 1 });
       }
 
-      //TODO: fix cursor later, low priority for now
-      // await setCursorLine(editor, 2);
+      const detail = await fetchProblemDetail(titleSlug);
+
+      const snippet = detail.codeSnippets?.find((c) => c.langSlug === language)?.code;
+
+      if (!snippet) {
+        vscode.window.showWarningMessage(
+          `No ${LANGUAGE_NAME_RECORD[language]} snippet found for this problem.`,
+        );
+        return;
+      }
+
+      const formattedCode = formatCode(snippet, language);
+
+      const encoder = new TextEncoder();
+      await vscode.workspace.fs.writeFile(uri, encoder.encode(formattedCode));
+      editor = await vscode.window.showTextDocument(uri, { viewColumn: 1 });
+
+      // await setCursorLine(editor);
       createProblemWebview(detail, context, uri.toString());
     });
   });

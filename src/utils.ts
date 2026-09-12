@@ -1,7 +1,6 @@
 import * as vscode from "vscode";
 import { Language } from "./types";
 import { LANGUAGES } from "./constants";
-import { extractCsrfToken } from "./cookie";
 
 export async function fileExistsAtUri(uri: vscode.Uri): Promise<boolean> {
   try {
@@ -14,6 +13,10 @@ export async function fileExistsAtUri(uri: vscode.Uri): Promise<boolean> {
 
 export async function fileExistsAtPath(path: string): Promise<boolean> {
   return fileExistsAtUri(vscode.Uri.file(path));
+}
+
+function isLanguage(lang: any): lang is Language {
+  return LANGUAGES.includes(lang);
 }
 
 export async function setCursorLine(editor: vscode.TextEditor, line: number) {
@@ -44,14 +47,8 @@ export function getConfig() {
 
   const language = config.get<string>("language");
 
-  if (!language) {
-    throw new Error("Language config is empty");
-  }
-
-  if (!(LANGUAGES as readonly string[]).includes(language)) {
-    throw new Error(
-      `Language "${language}" is not supported yet. Supported: ${LANGUAGES.join(", ")}`,
-    );
+  if (!isLanguage(language)) {
+    throw new Error("Invalid language");
   }
 
   const path = config.get<string>("path");
@@ -65,4 +62,16 @@ export function getConfig() {
 
 export function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+export function extractCsrfToken(cookie: string): string {
+  const start = cookie.indexOf("csrftoken=");
+  if (start === -1) {
+    throw new Error("CSRF cookie not found");
+  }
+
+  const valueStart = start + "csrftoken=".length;
+  const end = cookie.indexOf(";", valueStart);
+
+  return end === -1 ? cookie.slice(valueStart) : cookie.slice(valueStart, end);
 }
