@@ -7,7 +7,7 @@ import { FILE_NAME } from "./constants";
 import { existsSync } from "fs";
 import { fileExistsAtUri, getConfig, setCursorLine } from "./utils";
 import { FILE_EXTENSION_RECORD, LANGUAGE_NAME_RECORD } from "./languages";
-import { handleUriSignIn, login } from "./login";
+import { handleUriSignIn, login, logout } from "./auth";
 import { upload } from "./upload";
 import { getUploadCode } from "./markers";
 import * as path from "path";
@@ -123,6 +123,10 @@ export function activate(context: vscode.ExtensionContext) {
 
   const loginCommand = vscode.commands.registerCommand("leetcoder.login", () => {
     login();
+  });
+
+  const logoutCommand = vscode.commands.registerCommand("leetcoder.logout", async () => {
+    await logout(context);
   });
 
   //TODO: add run command to text examples.
@@ -253,13 +257,18 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   context.subscriptions.push(
-    openProblemCommand,
+    //Auth
     loginCommand,
+    logoutCommand,
+    //Problem
+    openProblemCommand,
     uploadCommand,
-    codelensProvider,
+    openDescriptionCommand,
+    //Config
     setLanguageCommand,
     setPathCommand,
-    openDescriptionCommand,
+    //CodeLens
+    codelensProvider,
   );
 
   vscode.window.registerUriHandler({ handleUri: (uri) => handleUriSignIn(uri, context) });

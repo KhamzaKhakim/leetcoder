@@ -25,6 +25,10 @@
         "title": "LeetCoder: Login"
       },
       {
+        "command": "leetcoder.logout",
+        "title": "LeetCoder: Logout"
+      },
+      {
         "command": "leetcoder.upload",
         "title": "LeetCoder: Upload (For Testing)"
       },

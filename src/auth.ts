@@ -28,3 +28,12 @@ export async function handleUriSignIn(
     vscode.window.showErrorMessage(`LeetCode sign-in failed: ${error}`);
   }
 }
+
+export async function logout(context: vscode.ExtensionContext) {
+  try {
+    await context.secrets.delete("leetcode.cookie");
+    vscode.window.showInformationMessage("Signed out from LeetCode.");
+  } catch (error) {
+    vscode.window.showErrorMessage(`LeetCode sign-out failed: ${error}`);
+  }
+}
